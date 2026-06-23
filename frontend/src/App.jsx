@@ -195,8 +195,21 @@ function MobileLayout({ children }) {
       )}
       <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '18px 16px', willChange: 'scroll-position' }}>
         {children}
+        <Footer />
       </main>
     </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{
+      marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)',
+      fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-muted)',
+      textAlign: 'center',
+    }}>
+      Powered by Claude Code.
+    </footer>
   );
 }
 
@@ -208,6 +221,7 @@ function Layout({ children }) {
       <Sidebar />
       <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '28px 32px', willChange: 'scroll-position' }}>
         {children}
+        <Footer />
       </main>
     </div>
   );

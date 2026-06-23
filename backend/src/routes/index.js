@@ -16,6 +16,17 @@ const { getStoredLearnset } = require("../services/smogonLearnsets");
 
 const router = express.Router();
 
+// Admin guard for destructive sync endpoints. Fails closed: the route is blocked
+// unless ADMIN_TOKEN is set in the environment AND the request presents a matching
+// `x-admin-token` header. With no ADMIN_TOKEN set (the default), nobody can trigger it.
+function requireAdmin(req, res, next) {
+  const token = process.env.ADMIN_TOKEN;
+  if (!token || req.get("x-admin-token") !== token) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+  next();
+}
+
 // Live tournament subsystem (create/join/lobby/launch/results).
 // Mounted under /tourney to avoid colliding with the RK9 /tournaments/* cache.
 router.use('/tourney', require('./tournaments'));
@@ -42,13 +53,13 @@ router.get("/regulations", async (req, res) => {
   })));
 });
 
-router.post("/regulations/sync", async (req, res) => {
+router.post("/regulations/sync", requireAdmin, async (req, res) => {
   const force = req.query.force === 'true';
   try { res.json({ ok: true, results: await syncAll(force) }); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/regulations/:id/sync", async (req, res) => {
+router.post("/regulations/:id/sync", requireAdmin, async (req, res) => {
   const reg = getRegById(req.params.id);
   if (!reg) return res.status(404).json({ error: "Regulation not found" });
   const force = req.query.force === 'true';
@@ -59,13 +70,13 @@ router.post("/regulations/:id/sync", async (req, res) => {
 });
 
 // Force-refresh Showdown pokedex (after a game update)
-router.post("/showdown/refresh", async (req, res) => {
+router.post("/showdown/refresh", requireAdmin, async (req, res) => {
   try { await refreshPokedex(); res.json({ ok: true }); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // Trigger learnset sync for a regulation (without re-syncing chaos data)
-router.post("/regulations/:id/sync-learnsets", async (req, res) => {
+router.post("/regulations/:id/sync-learnsets", requireAdmin, async (req, res) => {
   const reg = getRegById(req.params.id);
   if (!reg) return res.status(404).json({ error: "Regulation not found" });
   const db = await getDb();
@@ -953,7 +964,7 @@ router.post("/team/suggest", async (req, res) => {
 // ── Sprite management ─────────────────────────────────────────────────────────
 // Manually trigger a sprite download for all Pokémon in the current regulation.
 // Useful after first install or if sprites are missing.
-router.post("/sprites/sync", async (req, res) => {
+router.post("/sprites/sync", requireAdmin, async (req, res) => {
   const reg = resolveReg(req.query);
   const db  = await getDb();
   const month = getMonth(db, reg.id);
@@ -973,11 +984,8 @@ router.post("/sprites/sync", async (req, res) => {
 const { syncTournaments, syncStandings } = require('../services/tournamentSync');
 const { syncRk9 }                        = require('../services/rk9Sync');
 
-// POST /tournaments/sync-now  — emergency manual trigger, localhost only
-router.post('/tournaments/sync-now', async (req, res) => {
-  const ip = req.ip || req.connection.remoteAddress || '';
-  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
-  if (!isLocal) return res.status(403).json({ error: 'Local access only' });
+// POST /tournaments/sync-now  — emergency manual trigger, admin-only
+router.post('/tournaments/sync-now', requireAdmin, async (req, res) => {
   try {
     const [limitless, rk9] = await Promise.allSettled([syncTournaments(), syncRk9()]);
     res.json({
