@@ -17,8 +17,6 @@ async function req(path, opts = {}) {
 
 // ── Regulations ──────────────────────────────────────────────────────────────
 export const getRegulations    = ()         => req("/regulations");
-export const syncRegulation    = (id)       => req(`/regulations/${id}/sync`, { method: "POST" });
-export const syncAll           = ()         => req("/regulations/sync", { method: "POST" });
 
 // ── Usage ────────────────────────────────────────────────────────────────────
 export const getUsage = (reg, limit = 100) =>
