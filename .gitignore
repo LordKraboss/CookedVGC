@@ -17,12 +17,13 @@ backend/public/sprites/
 # logs
 *.log
 
-# stray local dev artifacts at repo root
-dex.json
-*.html
-learnsets_temp.json
-{backend/
-{src/
+# stray local dev artifacts at repo root (anchored to root so they don't
+# match real files like frontend/index.html)
+/dex.json
+/*.html
+/learnsets_temp.json
+/{backend/
+/{src/
 /data/
 
 # OS / editor
