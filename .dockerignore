@@ -1,0 +1,29 @@
+# Build context for the BACKEND image is the repo root.
+# Keep it lean: only shared/ + backend/ source are needed.
+
+# never ship installed deps — they're rebuilt in the image
+**/node_modules
+
+# frontend has its own image/context
+frontend
+
+# runtime state — provided as volumes, not baked into the image
+backend/data
+backend/public/sprites
+
+# git / editor / docs
+.git
+.gitignore
+.claude
+*.md
+
+# stray dev artifacts at repo root
+dex.json
+*.html
+learnsets_temp.json
+{backend
+{src
+data
+*.log
+.env
+.env.*

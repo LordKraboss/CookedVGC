@@ -1,0 +1,219 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg0: #0d0e12;
+  --bg1: #13151c;
+  --bg2: #1a1d27;
+  --bg3: #212535;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text-primary: #eef0f8;
+  --text-secondary: #8b90a8;
+  --text-muted: #4e5268;
+  --accent: #7c6dfa;
+  --accent-dim: rgba(124,109,250,0.15);
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Syne', sans-serif;
+
+  /* Type colours */
+  --t-normal:   #a8a878; --t-normal-bg:   rgba(168,168,120,0.12);
+  --t-fire:     #f08030; --t-fire-bg:     rgba(240,128,48,0.12);
+  --t-water:    #6890f0; --t-water-bg:    rgba(104,144,240,0.12);
+  --t-grass:    #78c850; --t-grass-bg:    rgba(120,200,80,0.12);
+  --t-electric: #f8d030; --t-electric-bg: rgba(248,208,48,0.12);
+  --t-ice:      #98d8d8; --t-ice-bg:      rgba(152,216,216,0.12);
+  --t-fighting: #c03028; --t-fighting-bg: rgba(192,48,40,0.12);
+  --t-poison:   #a040a0; --t-poison-bg:   rgba(160,64,160,0.12);
+  --t-ground:   #e0c068; --t-ground-bg:   rgba(224,192,104,0.12);
+  --t-flying:   #a890f0; --t-flying-bg:   rgba(168,144,240,0.12);
+  --t-psychic:  #f85888; --t-psychic-bg:  rgba(248,88,136,0.12);
+  --t-bug:      #a8b820; --t-bug-bg:      rgba(168,184,32,0.12);
+  --t-rock:     #b8a038; --t-rock-bg:     rgba(184,160,56,0.12);
+  --t-ghost:    #705898; --t-ghost-bg:    rgba(112,88,152,0.12);
+  --t-dragon:   #7038f8; --t-dragon-bg:   rgba(112,56,248,0.12);
+  --t-dark:     #705848; --t-dark-bg:     rgba(112,88,72,0.12);
+  --t-steel:    #b8b8d0; --t-steel-bg:    rgba(184,184,208,0.12);
+  --t-fairy:    #ee99ac; --t-fairy-bg:    rgba(238,153,172,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; background: var(--bg0); color: var(--text-primary); font-family: var(--display); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+
+input, textarea {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--display);
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+input:focus { border-color: var(--accent); }
+input::placeholder { color: var(--text-muted); }
+
+button {
+  background: var(--bg3);
+  border: 1px solid var(--border-hover);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+button:hover { background: var(--bg2); border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: transparent; color: #fff; }
+button.primary:hover { background: var(--accent-hover, #6b5eef); }
+
+.card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: .04em;
+  padding: 2px 8px;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.usage-bar {
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.usage-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.mono { font-family: var(--mono); }
+
+/* Responsive: collapse a multi-column page grid to a single column on phones.
+   Pair it with an inline grid-template-columns (the desktop layout); this rule
+   overrides that below the mobile breakpoint. */
+@media (max-width: 768px) {
+  .stack-mobile { grid-template-columns: 1fr !important; }
+  /* Two-pane flex (list + content) → stacked, full-width children. */
+  .flex-col-mobile { flex-direction: column !important; }
+  .flex-col-mobile > * { width: 100% !important; }
+  /* Relax fixed-width label columns that crowd narrow rows. */
+  .calc-move-name { min-width: 96px !important; }
+  /* Pokémon list rows: drop secondary columns so name/usage/actions fit a phone. */
+  .pokemon-row { flex-wrap: wrap; row-gap: 8px; }
+  .pokemon-row .pkrow-id { flex: 1 1 140px !important; }
+  .pokemon-row .pkrow-stats { display: none !important; }
+  .pokemon-row .usage-bar { display: none !important; }
+  /* Speed optimizer modal: tighten padding, drop the slider, wrap rows. */
+  .spd-overlay { padding: 10px !important; }
+  .spd-modal { padding: 18px !important; }
+  .spd-modal .spd-ev-slider { display: none !important; }
+  .spd-rowwrap { flex-wrap: wrap; }
+  .spd-combo-row { flex-wrap: wrap; row-gap: 6px; }
+  .spd-combo-nature { min-width: 0 !important; flex: 1 1 100%; }
+  /* Team-builder EV grid: hide the slider column so the row never overflows. */
+  .ev-grid { grid-template-columns: 40px 1fr 26px 44px 0px 26px 34px !important; }
+  .ev-slider { display: none !important; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Pokémon list rows ───────────────────────────────────────────────────────
+   Pure-CSS hover replaces JS onMouseEnter/Leave — no JS fires during scroll.
+   content-visibility: auto skips painting off-screen rows entirely.          */
+.pokemon-row {}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   THEMES
+   Applied via data-theme="..." on <html>.  :root holds the dark defaults.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Dark (default — matches :root, listed explicitly for the switcher) ───── */
+[data-theme="dark"] {
+  --accent-hover: #6b5eef;
+}
+
+/* ── Light ──────────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg0: #f2f4f9;
+  --bg1: #ffffff;
+  --bg2: #eaecf4;
+  --bg3: #dde0ed;
+  --border: rgba(0,0,0,0.09);
+  --border-hover: rgba(0,0,0,0.18);
+  --text-primary: #13151c;
+  --text-secondary: #525870;
+  --text-muted: #9099b8;
+  --accent: #6b5dea;
+  --accent-dim: rgba(107,93,234,0.12);
+  --accent-hover: #5a4dd4;
+
+  /* Boost type badge opacity so they stay readable on white */
+  --t-normal-bg:   rgba(168,168,120,0.18);
+  --t-fire-bg:     rgba(240,128,48,0.18);
+  --t-water-bg:    rgba(104,144,240,0.18);
+  --t-grass-bg:    rgba(120,200,80,0.18);
+  --t-electric-bg: rgba(248,208,48,0.18);
+  --t-ice-bg:      rgba(152,216,216,0.18);
+  --t-fighting-bg: rgba(192,48,40,0.18);
+  --t-poison-bg:   rgba(160,64,160,0.18);
+  --t-ground-bg:   rgba(224,192,104,0.18);
+  --t-flying-bg:   rgba(168,144,240,0.18);
+  --t-psychic-bg:  rgba(248,88,136,0.18);
+  --t-bug-bg:      rgba(168,184,32,0.18);
+  --t-rock-bg:     rgba(184,160,56,0.18);
+  --t-ghost-bg:    rgba(112,88,152,0.18);
+  --t-dragon-bg:   rgba(112,56,248,0.18);
+  --t-dark-bg:     rgba(112,88,72,0.18);
+  --t-steel-bg:    rgba(184,184,208,0.18);
+  --t-fairy-bg:    rgba(238,153,172,0.18);
+}
+
+/* In light mode hovering a button should go DARKER, not lighter */
+[data-theme="light"] button:hover {
+  background: #cdd2e4;
+  border-color: var(--accent);
+}
+
+/* ── Championship (logo — vivid green / deep red / near-black) ───────────── */
+/*    Green sampled from the CookedVGC logo character: ~#4e9e18              */
+[data-theme="championship"] {
+  --bg0: #06090a;
+  --bg1: #0b1109;
+  --bg2: #111c0d;
+  --bg3: #172512;
+  --border: rgba(78,158,24,0.28);
+  --border-hover: rgba(78,158,24,0.52);
+  --text-primary: #ecf5e4;
+  --text-secondary: #7aaa5a;
+  --text-muted: #3a5a28;
+  --accent: #c0282a;
+  --accent-dim: rgba(192,40,42,0.18);
+  --accent-hover: #a01e20;
+}
+

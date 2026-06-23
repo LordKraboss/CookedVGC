@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://pokechamdb.com/en/pokemon/garchomp?season=M-2&format=single\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -s -w \"\\\\nHTTP Status: %{http_code}\\\\n\" -I \"https://play.pokemonshowdown.com/data/learnsets.json\")",
+      "WebFetch(domain:limitless.gg)",
+      "Bash(npx vite *)",
+      "Bash(node -e \"require\\('./src/routes/index.js'\\); console.log\\('backend route OK'\\)\")",
+      "Bash(cd /c/Users/InfoWare31/Desktop/pokemon-vgc/frontend/src && ls pages)",
+      "Bash(node --test src/tournament/)",
+      "Bash(node --test src/tournament/match.test.js)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+# VGCtool production stack.
+#   web      — Caddy: serves the built frontend + reverse-proxies the backend,
+#              with automatic HTTPS. Only this service is exposed to the internet.
+#   backend  — Express + Socket.IO + sql.js. Reachable only on the internal
+#              network as "backend:3001"; its state lives in bind-mounted folders.
+#
+# Redeploy a new version:  git pull && docker compose up -d --build
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      - PORT=3001
+      - CLIENT_ORIGINS=https://${DOMAIN}
+    volumes:
+      # DB (vgc.db) + Champions caches — survives rebuilds and reboots
+      - ./backend/data:/app/backend/data
+      # downloaded sprites — avoids re-fetching from the CDN on every deploy
+      - ./backend/public/sprites:/app/backend/public/sprites
+    expose:
+      - "3001"
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # baked into the JS bundle at build time
+        VITE_API_URL: https://${DOMAIN}/api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      - DOMAIN=${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # persist Caddy's TLS certificates across restarts
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

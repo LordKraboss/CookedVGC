@@ -1,0 +1,22 @@
+# {$DOMAIN} comes from the web container's environment (docker-compose).
+# Caddy auto-provisions a Let's Encrypt cert once DNS points here.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# REST API + Socket.IO. reverse_proxy handles the WebSocket upgrade itself.
+	handle /api/* {
+		reverse_proxy backend:3001
+	}
+
+	# Locally-cached Pokémon sprites are served by the backend at /sprites/*
+	handle /sprites/* {
+		reverse_proxy backend:3001
+	}
+
+	# SPA: serve the static build, fall back to index.html for client routes.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

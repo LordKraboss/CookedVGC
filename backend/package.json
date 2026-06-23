@@ -1,0 +1,27 @@
+{
+  "name": "pokemon-vgc-backend",
+  "version": "1.0.0",
+  "description": "VGC tool backend — Express + SQLite + Smogon sync",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "test": "node --test \"src/**/*.test.js\"",
+    "sync": "node -e \"const {initSchema}=require('./src/db/schema');const {syncAll}=require('./src/services/smogonSync');initSchema().then(()=>syncAll()).then(r=>console.log(JSON.stringify(r,null,2)))\"",
+    "refresh-champions": "node src/scripts/refreshChampions.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.3",
+    "node-cron": "^3.0.3",
+    "socket.io": "^4.8.3",
+    "sql.js": "^1.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

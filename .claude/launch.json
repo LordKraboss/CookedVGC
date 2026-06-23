@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ambulance-frontend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Users\\InfoWare31\\Desktop\\ambulance-app\\frontend && npm run dev"],
+      "port": 5173
+    },
+    {
+      "name": "vgc-frontend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Users\\InfoWare31\\Desktop\\pokemon-vgc\\frontend && npm run dev -- --port 5174 --strictPort"],
+      "port": 5174
+    }
+  ]
+}
