@@ -26,6 +26,10 @@ backend/public/sprites/
 /{src/
 /data/
 
+# internal docs — kept local, not published to the public repo
+/CLAUDE.md
+/claude-workflow.md
+
 # OS / editor
 .DS_Store
 Thumbs.db
