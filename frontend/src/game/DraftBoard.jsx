@@ -3,8 +3,32 @@
 // it just renders `state` and calls `dispatch`. Driven entirely by props from
 // useGameRoom, so the same component serves pass-and-play and networked rooms.
 
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PokemonImage } from '../components/PokemonCard';
+import { useTeams } from '../hooks/useTeams';
+import { playTurnChime } from './sound';
 import { totalPicks, poolTarget } from './modes/draft';
+
+// ── Toast notification (mirrors AddToTeamButton's pattern) ─────────────────────
+function TeamCreatedToast({ teamName, onDone }) {
+  const navigate = useNavigate();
+  useEffect(() => { const t = setTimeout(onDone, 2500); return () => clearTimeout(t); }, [onDone]);
+  return (
+    <div style={{
+      position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)',
+      background: '#14532d', border: '1px solid #4ade80', color: '#dcfce7',
+      borderRadius: 10, padding: '12px 20px', fontSize: 13, fontWeight: 600,
+      zIndex: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.5)', whiteSpace: 'nowrap',
+    }}>
+      ✓ Created{' '}
+      <span onClick={() => { onDone(); navigate('/teams'); }}
+        style={{ textDecoration: 'underline', cursor: 'pointer', color: '#86efac' }}>
+        {teamName}
+      </span>
+    </div>
+  );
+}
 
 const PLAYER_COLORS = ['#60a5fa', '#f97316', '#4ade80', '#f472b6', '#a78bfa', '#fbbf24', '#22d3ee', '#fb7185'];
 const colorFor = i => PLAYER_COLORS[i % PLAYER_COLORS.length];
@@ -87,6 +111,27 @@ export default function DraftBoard({
   onExit,          // back to lobby
 }) {
   const { state, dispatch, restart, players, myIndex, myTurn, isHost } = game;
+  const { newTeam } = useTeams();
+  const [toast, setToast] = useState(null); // null | { teamName }
+
+  // Dark little blip when it becomes my turn to pick (every turn in local
+  // pass-and-play, since each turn belongs to whoever's holding the device).
+  const prevTurnRef = useRef(null);
+  useEffect(() => {
+    if (state?.phase === 'drafting' && state.turn !== prevTurnRef.current
+      && (transport === 'local' || state.turn === myIndex)) {
+      playTurnChime();
+    }
+    prevTurnRef.current = state?.phase === 'drafting' ? state.turn : null;
+  }, [state?.phase, state?.turn, transport, myIndex]);
+
+  function copyToNewTeam(player, picks) {
+    const slots = Array(6).fill(null);
+    picks.slice(0, 6).forEach((p, i) => { slots[i] = { name: p.name, spriteUrl: p.spriteUrl ?? null }; });
+    const teamName = `${player.name}'s Draft Team`;
+    newTeam(slots, teamName);
+    setToast({ teamName });
+  }
 
   if (!state) {
     return (
@@ -144,25 +189,39 @@ export default function DraftBoard({
           title="Draft complete" subtitle={null}
           right={isHost && <button onClick={restart} style={btnPrimary}>New Draft</button>} />
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(players.length, 3)}, 1fr)`, gap: 20 }}>
-          {players.map(pl => (
-            <div key={pl.index}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: colorFor(pl.index), marginBottom: 12 }}>
-                {pl.name}{pl.index === myIndex ? ' (you)' : ''}
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                {(state.picks[pl.index] ?? []).map(p => (
-                  <div key={p.name} style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                    padding: '10px 6px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg1)',
-                  }}>
-                    <PokemonImage name={p.name} spriteUrl={p.spriteUrl} size={56} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', textAlign: 'center' }}>{p.name}</span>
+          {players.map(pl => {
+            const picks = state.picks[pl.index] ?? [];
+            return (
+              <div key={pl.index}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: colorFor(pl.index) }}>
+                    {pl.name}{pl.index === myIndex ? ' (you)' : ''}
                   </div>
-                ))}
+                  {picks.length > 0 && (
+                    <button onClick={() => copyToNewTeam(pl, picks)} style={btnSmall}
+                      title={picks.length > 6 ? 'First 6 picks will be copied' : undefined}>
+                      Copy to New Team
+                    </button>
+                  )}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {picks.map(p => (
+                    <div key={p.name} style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                      padding: '10px 6px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg1)',
+                    }}>
+                      <PokemonImage name={p.name} spriteUrl={p.spriteUrl} size={56} />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', textAlign: 'center' }}>{p.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+        {toast && <TeamCreatedToast teamName={toast.teamName} onDone={() => setToast(null)} />}
       </div>
     );
   }
