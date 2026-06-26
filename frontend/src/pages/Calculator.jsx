@@ -243,8 +243,8 @@ function Chip({ label, active, onClick, color = 'var(--accent)' }) {
 function BoostControl({ value, onChange }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <button onClick={() => onChange(Math.min(6, value + 1))}
-        style={{ width: 18, height: 18, padding: 0, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80', fontWeight: 700 }}>+</button>
+      <button onClick={() => onChange(Math.max(-6, value - 1))}
+        style={{ width: 18, height: 18, padding: 0, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 700 }}>−</button>
       <span style={{
         fontFamily: 'var(--mono)', fontSize: 11, minWidth: 20, textAlign: 'center',
         color: value > 0 ? '#4ade80' : value < 0 ? '#f87171' : 'var(--text-muted)',
@@ -252,8 +252,8 @@ function BoostControl({ value, onChange }) {
       }}>
         {value > 0 ? `+${value}` : value}
       </span>
-      <button onClick={() => onChange(Math.max(-6, value - 1))}
-        style={{ width: 18, height: 18, padding: 0, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 700 }}>−</button>
+      <button onClick={() => onChange(Math.min(6, value + 1))}
+        style={{ width: 18, height: 18, padding: 0, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80', fontWeight: 700 }}>+</button>
     </div>
   );
 }

@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PokemonImage } from '../components/PokemonCard';
+import { playWinChime, playTurnChime, playWarningChime } from './sound';
 
 const PD = '₽'; // Pokédollar symbol
 const PLAYER_COLORS = [
@@ -275,6 +276,17 @@ function SelectionPhase({ state, dispatch, players, myIndex, transport, roomCode
   const countdown     = useCountdown(state.selectionTimer?.startedAt, 30_000);
   const [query, setQuery]   = useState('');
 
+  // Warn once when my own pick-timer crosses 5 seconds remaining.
+  const warnedRef = useRef(false);
+  useEffect(() => {
+    if (!isMyTurn || countdown === null) { warnedRef.current = false; return; }
+    if (countdown <= 5 && countdown > 0 && !warnedRef.current) {
+      warnedRef.current = true;
+      playWarningChime();
+    }
+    if (countdown > 5) warnedRef.current = false;
+  }, [countdown, isMyTurn]);
+
   const q = query.trim().toLowerCase();
   const visiblePool = q
     ? state.pool.filter(p => p.name.toLowerCase().includes(q))
@@ -532,6 +544,24 @@ function DonePhase({ state, players, myIndex, restart, isHost, transport, roomCo
 // ── Main board ──────────────────────────────────────────────────────────────────
 export default function AuctionBoard({ game, transport, roomCode, onExit }) {
   const { state, dispatch, restart, players, myIndex, isHost } = game;
+
+  // Play a happy chime the moment bidding resolves in my favor — i.e. the
+  // phase just left 'bidding' and I was the leader on the bid that closed it.
+  // Play a dark little blip when it becomes my turn to nominate.
+  const prevRef = useRef(null);
+  useEffect(() => {
+    const prev = prevRef.current;
+    if (prev && prev.phase === 'bidding' && state?.phase !== 'bidding'
+      && prev.currentBid?.byIndex === myIndex) {
+      playWinChime();
+    }
+    if (state?.phase === 'selection') {
+      const nominator = state.order[state.nominationTurn];
+      const wasMyTurn = prev?.phase === 'selection' && prev.order[prev.nominationTurn] === myIndex;
+      if (nominator === myIndex && !wasMyTurn) playTurnChime();
+    }
+    prevRef.current = state;
+  }, [state, myIndex]);
 
   // Host fires timer-expiry actions so all clients stay in sync via broadcast.
   useEffect(() => {
