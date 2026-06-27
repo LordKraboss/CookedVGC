@@ -13,8 +13,8 @@
 const REGULATIONS = [
   {
     id: "regma",
-    label: "Reg MA — Champions BSS",
-    format: "gen9championsbssregma",   // ← Smogon chaos filename prefix
+    label: "Reg MA — Champions VGC 2026",
+    format: "gen9championsvgc2026regma",   // ← Smogon chaos filename prefix
     ratingBracket: 0,                  // 0 = all battles, 1500, 1630, 1760 available
     active: true,
     startMonth: "2025-01",            // earliest month to pull; null = latest only
@@ -23,8 +23,8 @@ const REGULATIONS = [
 
   {
     id: "regmb",
-    label: "Reg MB — Champions BSS",
-    format: "gen9championsbssregmb",   // ← Smogon chaos filename prefix
+    label: "Reg MB — Champions VGC 2026",
+    format: "gen9championsvgc2026regmb",   // ← Smogon chaos filename prefix
     ratingBracket: 0,                  // 0 = all battles, 1500, 1630, 1760 available
     active: true,
     startMonth: "2026-06",            // earliest month to pull; null = latest only
