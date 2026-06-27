@@ -13,6 +13,7 @@ function norm(s) { return (s ?? '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 /** Returns the local sprite URL if cached, otherwise null (no CDN fallback). */
 function spriteUrl(name) { return getLocalSpriteUrl(name); }
 const { getStoredLearnset } = require("../services/smogonLearnsets");
+const { validateTeam } = require("../services/teamValidator");
 
 const router = express.Router();
 
@@ -832,6 +833,20 @@ router.get("/moves/details", async (req, res) => {
         : null;
     }
     res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Team legality ─────────────────────────────────────────────────────────────
+// Validates a team's species / moves / ability / item against a reg's legal pool.
+
+router.post("/teams/validate", async (req, res) => {
+  const reg = resolveReg(req.body);
+  const slots = Array.isArray(req.body?.slots) ? req.body.slots : null;
+  if (!slots) return res.status(400).json({ error: "slots array required" });
+  try {
+    res.json(await validateTeam(reg, slots));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
