@@ -12,16 +12,17 @@ import {
   tourneyCreate, tourneyGet, tourneyJoin, tourneySubmitTeam,
   tourneyRejectTeam, tourneyLaunch, tourneyDestroy, tourneyClose,
   tourneyReport, tourneyPresent, tourneyNoShow, tourneyResolve, tourneyAdvance, tourneyDrop,
+  validateTeam,
 } from '../lib/api';
 import { TeamSheet } from '../components/PokemonChip';
 
 const ACTIVE_KEY = 'vgc_tourney_code';
 const TEAMS_KEY  = 'vgc_teams_v2';
 
-function localTeams(regId) {
+function localTeams() {
   try {
     const { teams = [] } = JSON.parse(localStorage.getItem(TEAMS_KEY) || '{}');
-    return teams.filter(t => !regId || t.reg === regId);
+    return teams;
   } catch { return []; }
 }
 
@@ -35,14 +36,14 @@ const POW2 = [2, 4, 8, 16, 32, 64];
 
 // ── Create / Join ─────────────────────────────────────────────────────────────
 function CreateOrJoin({ onEnter, clientId }) {
-  const { regs = [], activeRegId } = useRegulation();
+  const { currentReg, currentRegId } = useRegulation();
   const [mode, setMode]   = useState('create');
   const [busy, setBusy]   = useState(false);
   const [error, setError] = useState('');
 
-  // create state
+  // create state — tournaments are always run in the current ("Champions") reg.
   const [name, setName]     = useState('');
-  const [regId, setRegId]   = useState(activeRegId);
+  const regId = currentRegId;
   const [format, setFormat] = useState('swiss');
   const [bestOf, setBestOf] = useState(3);
   const [swissBestOf, setSwissBestOf]   = useState(3);
@@ -124,9 +125,9 @@ function CreateOrJoin({ onEnter, clientId }) {
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Field label="REGULATION" style={{ flex: 1, minWidth: 180 }}>
-              <select value={regId} onChange={e => setRegId(e.target.value)} style={input}>
-                {regs.map(r => <option key={r.id} value={r.id}>{r.label ?? r.id}</option>)}
-              </select>
+              <div style={{ ...input, display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
+                {currentReg?.label ?? currentRegId}
+              </div>
             </Field>
             <Field label="YOUR NAME" style={{ flex: 1, minWidth: 180 }}>
               <input value={yourName} onChange={e => setYourName(e.target.value)} maxLength={24}
@@ -265,7 +266,7 @@ function Room({ code, clientId, onLeave }) {
   if (!st) return <Centered><p style={{ color: 'var(--text-muted)' }}>Loading…</p></Centered>;
 
   const isMaster = st.you.isMaster;
-  const teams = localTeams(st.regId);
+  const teams = localTeams();
 
   async function act(fn) {
     setBusy(true); setErr('');
@@ -413,9 +414,36 @@ function Lobby({ st, clientId, teams, isMaster, onSubmit, onReject, onLaunch, bu
 }
 
 function TeamPicker({ me, teams, regId, onSubmit, busy }) {
+  const { regs = [] } = useRegulation();
   const [sel, setSel] = useState('');
   const [editing, setEditing] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [issues, setIssues] = useState(null); // null = unchecked; [] handled as legal
   if (!me) return <Empty>You're organizing but not playing.</Empty>;
+
+  const regLabel = regs.find(r => r.id === regId)?.label ?? regId;
+
+  // Validate the chosen team against the tournament's regulation before submitting.
+  // A team that isn't legal is rejected here — it can't be validated into the event.
+  async function validateAndSubmit() {
+    const t = teams.find(x => x.id === sel);
+    if (!t) return;
+    const slots = t.slots.filter(Boolean);
+    setChecking(true); setIssues(null);
+    try {
+      const res = await validateTeam(slots, regId);
+      if (res.checkable && !res.legal) {
+        setIssues(res.slots.filter(s => !s.legal));
+        return;
+      }
+      onSubmit(slots);
+      setEditing(false);
+    } catch {
+      setIssues([{ index: -1, name: '', problems: ['Could not verify team legality — try again.'] }]);
+    } finally {
+      setChecking(false);
+    }
+  }
 
   if (me.teamStatus === 'submitted' && !editing) {
     return (
@@ -437,10 +465,10 @@ function TeamPicker({ me, teams, regId, onSubmit, busy }) {
         </div>
       )}
       {teams.length === 0 ? (
-        <Empty>No saved teams for <b>{regId}</b>. Build one in “My teams” first.</Empty>
+        <Empty>No saved teams yet. Build one in “My teams” first.</Empty>
       ) : (
         <>
-          <select value={sel} onChange={e => setSel(e.target.value)} style={input}>
+          <select value={sel} onChange={e => { setSel(e.target.value); setIssues(null); }} style={input}>
             <option value="">Select a team…</option>
             {teams.map(t => (
               <option key={t.id} value={t.id}>
@@ -448,9 +476,17 @@ function TeamPicker({ me, teams, regId, onSubmit, busy }) {
               </option>
             ))}
           </select>
-          <button disabled={!sel || busy} style={primaryLg(!sel || busy)}
-            onClick={() => { const t = teams.find(x => x.id === sel); if (t) { onSubmit(t.slots.filter(Boolean)); setEditing(false); } }}>
-            Validate team
+          {issues && (
+            <div style={{ ...errBox, background: 'rgba(248,113,113,.1)' }}>
+              This team isn’t legal for <b>{regLabel}</b>. Fix it in “My teams”, then re-select:
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                {issues.flatMap(s => s.problems.map((p, i) => <li key={`${s.index}-${i}`}>{p}</li>))}
+              </ul>
+            </div>
+          )}
+          <button disabled={!sel || busy || checking} style={primaryLg(!sel || busy || checking)}
+            onClick={validateAndSubmit}>
+            {checking ? 'Checking legality…' : 'Validate team'}
           </button>
           {editing && <button style={miniBtn} onClick={() => setEditing(false)}>Cancel</button>}
         </>

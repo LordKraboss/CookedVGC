@@ -1,7 +1,7 @@
 // src/pages/TeamBuilder.jsx
 import { useState, useCallback, memo, useTransition, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeamSuggestions, getPokemonSuggestions } from '../lib/api';
+import { getTeamSuggestions, getPokemonSuggestions, validateTeam } from '../lib/api';
 import { AutocompleteInput } from '../components/AutocompleteInput';
 import { SortBar, sortPokemon, SORT_OPTIONS } from '../components/SortBar';
 import { useTeams } from '../hooks/useTeams';
@@ -273,7 +273,7 @@ function ExportModal({ text, onClose }) {
 
 // ── Suggestions panel ─────────────────────────────────────────────────────────
 function SuggestionsPanel({ team, onAdd }) {
-  const { activeRegId } = useRegulation();
+  const { currentRegId: activeRegId } = useRegulation();
   const navigate = useNavigate();
 
   // Default ascending: lower rank sum = better synergy
@@ -408,9 +408,63 @@ const TeamSlotWrapper = memo(function TeamSlotWrapper({ index, pokemon, setSlot,
   return <PokemonSlotCard pokemon={pokemon} onUpdate={handleUpdate} onRemove={handleRemove} />;
 });
 
+// ── Legality badge ──────────────────────────────────────────────────────────
+// Validates the team's filled slots against the current regulation's legal pool.
+function TeamLegalityBadge({ team, regId }) {
+  const [result, setResult] = useState(null);
+  const [open, setOpen] = useState(false);
+  const filled = team.slots.filter(Boolean);
+  const key = `${regId}|${JSON.stringify(filled.map(s => [s.name, s.ability, s.item, s.moves, s.evs]))}`;
+
+  useEffect(() => {
+    if (filled.length === 0 || !regId) { setResult(null); return; }
+    let cancelled = false;
+    validateTeam(team.slots, regId)
+      .then(r => { if (!cancelled) setResult(r); })
+      .catch(() => { if (!cancelled) setResult(null); });
+    return () => { cancelled = true; };
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (filled.length === 0 || !result) return null;
+
+  if (!result.checkable) {
+    return (
+      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+        Legality data not synced for this regulation
+      </span>
+    );
+  }
+
+  if (result.legal) {
+    return (
+      <span style={{ fontSize: 12, fontWeight: 700, color: '#34d399' }}>
+        ✓ Legal for this regulation
+      </span>
+    );
+  }
+
+  const flagged = result.slots.filter(s => !s.legal);
+  const count = flagged.reduce((n, s) => n + s.problems.length, 0);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ fontSize: 12, fontWeight: 700, padding: '4px 10px', color: '#f87171', borderColor: 'rgba(248,113,113,0.4)', alignSelf: 'flex-start' }}
+      >
+        ⚠ {count} legality {count === 1 ? 'issue' : 'issues'} — {open ? 'hide' : 'show'}
+      </button>
+      {open && (
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {flagged.flatMap(s => s.problems.map((p, i) => <li key={`${s.index}-${i}`}>{p}</li>))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function TeamBuilder() {
-  const { activeRegId, activeReg } = useRegulation();
+  const { currentRegId, currentReg } = useRegulation();
   const {
     teams, activeTeam,
     selectTeam, newTeam, renameTeam, deleteTeam,
@@ -462,7 +516,7 @@ export default function TeamBuilder() {
         <button className="primary" onClick={() => setShowNewTeam(true)}>+ New team</button>
       </div>
 
-      {!activeReg?.syncMonth && (
+      {!currentReg?.syncMonth && (
         <NoStatsBanner>
           No usage stats for this regulation yet — Showdown hasn't published data for it.
           You can still build teams; Pokémon, move, item and ability search work off the
@@ -520,6 +574,8 @@ export default function TeamBuilder() {
                 </span>
               </>
             )}
+            <div style={{ flex: 1 }} />
+            <TeamLegalityBadge team={activeTeam} regId={currentRegId} />
           </div>
 
           {/* 6 slots grid — 3 per row */}
@@ -566,7 +622,7 @@ export default function TeamBuilder() {
         <AddModal
           onClose={() => setAddingSlot(null)}
           onAdd={(p) => handleAddSlot(addingSlot, p)}
-          activeRegId={activeRegId}
+          activeRegId={currentRegId}
           existingNames={activeTeam.slots.filter(Boolean).map(p => p.name.toLowerCase())}
         />
       )}

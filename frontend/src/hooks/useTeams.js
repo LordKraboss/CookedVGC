@@ -7,6 +7,13 @@ import { useState, useCallback } from "react";
 
 const STORAGE_KEY = "vgc_teams_v2";
 
+// The regulation a freshly-created team belongs to = whatever reg is active in
+// the app right now (persisted by RegulationContext). Falls back to regma when
+// nothing is stored yet (first load before a reg is chosen).
+function currentReg() {
+  return localStorage.getItem("vgc_active_reg") || "regma";
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -20,7 +27,7 @@ function load() {
 function defaultState() {
   return {
     activeId: "team-1",
-    teams: [{ id: "team-1", name: "Team 1", reg: "regma", slots: Array(6).fill(null) }],
+    teams: [{ id: "team-1", name: "Team 1", reg: currentReg(), slots: Array(6).fill(null) }],
   };
 }
 
@@ -71,7 +78,7 @@ export function useTeams() {
       const teamName = name ?? `Team ${s.teams.length + 1}`;
       return {
         ...s,
-        teams: [...s.teams, { id, name: teamName, reg: "regma", slots }],
+        teams: [...s.teams, { id, name: teamName, reg: currentReg(), slots }],
         activeId: id,
       };
     }, { urgent: true }),

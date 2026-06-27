@@ -3,7 +3,7 @@
 // Switch reg from anywhere — all React Query keys include regId so caches
 // are automatically scoped and don't bleed between regulations.
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getRegulations } from "./api";
 
@@ -35,8 +35,18 @@ export function RegulationProvider({ children }) {
 
   const activeReg = regs.find((r) => r.id === activeRegId) ?? regs.find((r) => r.active);
 
+  // The single current competitive regulation ("Champions"). Team building and
+  // tournaments are pinned to this — they don't follow the meta-browsing switcher.
+  // = the active regulation with the latest startMonth (newest reg wins).
+  const currentReg = useMemo(() => {
+    const pool = regs.filter((r) => r.active);
+    const list = pool.length ? pool : regs;
+    return [...list].sort((a, b) => (b.startMonth ?? "").localeCompare(a.startMonth ?? ""))[0] ?? null;
+  }, [regs]);
+  const currentRegId = currentReg?.id ?? defaultReg;
+
   return (
-    <RegCtx.Provider value={{ regs, activeRegId: activeRegId ?? defaultReg, activeReg, setReg }}>
+    <RegCtx.Provider value={{ regs, activeRegId: activeRegId ?? defaultReg, activeReg, currentReg, currentRegId, setReg }}>
       {children}
     </RegCtx.Provider>
   );

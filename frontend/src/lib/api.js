@@ -61,6 +61,12 @@ export const getTeamSuggestions = (team, reg) =>
     body: JSON.stringify({ team, reg }),
   });
 
+export const validateTeam = (slots, reg) =>
+  req("/teams/validate", {
+    method: "POST",
+    body: JSON.stringify({ slots, reg }),
+  });
+
 // ── Tournament Teams (DB-backed, Limitless TCG as source) ────────────────────
 // All params optional; DB returns all events when no filter applied.
 export const getTournaments = ({ limit = 200, minPlayers = 0, format = '', source = '', since = '' } = {}) => {

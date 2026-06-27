@@ -5,7 +5,10 @@
 const express = require('express');
 const { getDb } = require('../db/schema');
 const S = require('../tournament/service');
+const store = require('../tournament/store');
 const { broadcastTournament } = require('../tournament/realtime');
+const { getRegById } = require('../../../shared/regulations');
+const { validateTeam } = require('../services/teamValidator');
 
 const router = express.Router();
 
@@ -63,8 +66,26 @@ router.get('/:code', handle((db, req) =>
   S.getStateFor(db, req.params.code.toUpperCase(), req.query.clientId || null)));
 
 // Team submit / reject
-router.post('/:code/team', mut((db, req) =>
-  S.submitTeam(db, req.params.code.toUpperCase(), req.body?.clientId, req.body?.team)));
+// Hard-rejects a team that isn't legal for the tournament's regulation. Runs only
+// while the event is in lobby (otherwise submitTeam returns the proper 409 lock).
+router.post('/:code/team', mut(async (db, req) => {
+  const code = req.params.code.toUpperCase();
+  const team = req.body?.team;
+  const ev = store.getEvent(db, code);
+  if (ev && ev.status === 'lobby' && Array.isArray(team) && team.length) {
+    const reg = getRegById(ev.reg_id);
+    if (reg) {
+      const result = await validateTeam(reg, team);
+      if (result.checkable && !result.legal) {
+        const problems = result.slots.flatMap(s => s.problems);
+        const err = new Error(`Team is not legal for ${reg.label ?? reg.id}: ${problems.join('; ')}`);
+        err.status = 422;
+        throw err;
+      }
+    }
+  }
+  return S.submitTeam(db, code, req.body?.clientId, team);
+}));
 router.post('/:code/team/reject', mut((db, req) =>
   S.rejectTeam(db, req.params.code.toUpperCase(), req.body?.clientId, req.body?.targetClientId, req.body?.comment)));
 
