@@ -13,6 +13,7 @@ import Calculator         from './pages/Calculator';
 import SpeedTier          from './pages/SpeedTier';
 import AccuracyCheck      from './pages/AccuracyCheck';
 import ItemDex            from './pages/ItemDex';
+import MyNotes            from './pages/MyNotes';
 import Draft              from './pages/Draft';
 import Tournament         from './pages/Tournament';
 import TournamentResults  from './pages/TournamentResults';
@@ -28,10 +29,11 @@ const NAV = [
   { path: '/',                    label: 'Meta',              icon: '◉' },
   { path: '/moves',               label: 'Move lookup',       icon: '⌖' },
   { path: '/teams',               label: 'My teams',          icon: '◧' },
-  { path: '/tournament-teams',    label: 'Tournament teams',  icon: '◈' },
+  { path: '/tools/notes',         label: 'My Notes',          icon: '📓' },
 ];
 
 const TOOLS_NAV = [
+  { path: '/tournament-teams', label: 'Tournament teams', icon: '◈' },
   { path: '/tools/calculator', label: 'Calculator', icon: '⊞' },
   { path: '/tools/speed-tier', label: 'Speed Tier',  icon: '⚡' },
   { path: '/tools/accuracy',   label: 'Accuracy',    icon: '◎' },
@@ -245,6 +247,7 @@ export default function App() {
                 <Route path="/tools/speed-tier" element={<SpeedTier />} />
                 <Route path="/tools/accuracy"   element={<AccuracyCheck />} />
                 <Route path="/tools/items"      element={<ItemDex />} />
+                <Route path="/tools/notes"      element={<MyNotes />} />
                 <Route path="/tools/draft"      element={<Draft />} />
                 <Route path="/tools/tournament" element={<Tournament />} />
                 <Route path="/tools/tournament-results" element={<TournamentResults />} />
