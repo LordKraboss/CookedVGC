@@ -97,6 +97,19 @@ export function setLastTeamId(id) {
   if (id) localStorage.setItem(LAST_TEAM_KEY, id);
 }
 
+const LAST_TAGS_KEY = "vgc_notes_last_tags";
+export function getLastTags() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(LAST_TAGS_KEY));
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+export function setLastTags(tags) {
+  try { localStorage.setItem(LAST_TAGS_KEY, JSON.stringify(tags)); } catch { /* quota */ }
+}
+
 // ── Reporting helpers (pure) ───────────────────────────────────────────────
 
 export function tally(notes) {

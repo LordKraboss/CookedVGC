@@ -3,7 +3,7 @@
 // browse/edit history, see winrate stats, export/import as JSON or CSV.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTeams } from '../hooks/useTeams';
-import { useNotes, getLastTeamId, setLastTeamId, tally, winrate, byTeam } from '../hooks/useNotes';
+import { useNotes, getLastTeamId, setLastTeamId, getLastTags, setLastTags, tally, winrate, byTeam } from '../hooks/useNotes';
 import { useRegulation } from '../lib/RegulationContext';
 import { AutocompleteInput } from '../components/AutocompleteInput';
 import { PokemonImage } from '../components/PokemonCard';
@@ -23,8 +23,8 @@ const RESULTS = [
 
 const emptyOpp = () => ({ name: '', nature: '', item: '', ability: '', moves: ['', '', '', ''] });
 
-function blankDraft(teamId) {
-  return { id: null, result: 'win', myTeamId: teamId || '', myBrought: [], opponent: [], oppBrought: [], tags: [], notes: '' };
+function blankDraft(teamId, tags = []) {
+  return { id: null, result: 'win', myTeamId: teamId || '', myBrought: [], opponent: [], oppBrought: [], tags, notes: '' };
 }
 
 // Tags are stored normalized (no leading #, lowercase, spaces → dashes) so the
@@ -89,7 +89,7 @@ export default function MyNotes() {
   const { activeRegId } = useRegulation();
   const fileRef = useRef(null);
 
-  const [draft, setDraft] = useState(() => blankDraft(getLastTeamId() || teams[0]?.id));
+  const [draft, setDraft] = useState(() => blankDraft(getLastTeamId() || teams[0]?.id, getLastTags()));
   const [oppQuery, setOppQuery] = useState('');
   const [filterTags, setFilterTags] = useState([]);
   const [page, setPage] = useState(0);
@@ -124,9 +124,19 @@ export default function MyNotes() {
 
   const addTag = (raw) => {
     const t = normalizeTag(raw);
-    if (t) setDraft((d) => d.tags.includes(t) ? d : { ...d, tags: [...d.tags, t] });
+    if (!t) return;
+    setDraft((d) => {
+      if (d.tags.includes(t)) return d;
+      const tags = [...d.tags, t];
+      setLastTags(tags);
+      return { ...d, tags };
+    });
   };
-  const removeTag = (t) => setDraft((d) => ({ ...d, tags: d.tags.filter((x) => x !== t) }));
+  const removeTag = (t) => setDraft((d) => {
+    const tags = d.tags.filter((x) => x !== t);
+    setLastTags(tags);
+    return { ...d, tags };
+  });
   const toggleFilterTag = (t) => {
     setPage(0);
     setFilterTags((f) => f.includes(t) ? f.filter((x) => x !== t) : [...f, t]);
@@ -165,7 +175,7 @@ export default function MyNotes() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const resetDraft = () => setDraft(blankDraft(getLastTeamId() || teams[0]?.id));
+  const resetDraft = () => setDraft(blankDraft(getLastTeamId() || teams[0]?.id, getLastTags()));
 
   const submit = () => {
     const team = teamById[draft.myTeamId];
