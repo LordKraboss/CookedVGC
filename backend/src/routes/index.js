@@ -998,7 +998,7 @@ router.post("/sprites/sync", requireAdmin, async (req, res) => {
 });
 
 // ── Tournament routes (DB-backed, Limitless TCG as source) ───────────────────
-const { syncTournaments, syncStandings } = require('../services/tournamentSync');
+const { syncTournaments, syncStandings, resyncCachedStandings } = require('../services/tournamentSync');
 const { syncRk9 }                        = require('../services/rk9Sync');
 
 // POST /tournaments/sync-now  — emergency manual trigger, admin-only
@@ -1010,6 +1010,23 @@ router.post('/tournaments/sync-now', requireAdmin, async (req, res) => {
       limitless: limitless.status === 'fulfilled' ? limitless.value : { error: limitless.reason?.message },
       rk9:       rk9.status       === 'fulfilled' ? rk9.value       : { error: rk9.reason?.message },
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /tournaments/resync-standings?days=14  (or ?limit=5) — admin-only
+// Backfills cached Limitless standings with mapping fields added after they were
+// first cached (e.g. Stat Alignment). Runs in-process on purpose — see the
+// comment on resyncCachedStandings for why a separate `docker compose exec`
+// script can't safely do this against a live server.
+router.post('/tournaments/resync-standings', requireAdmin, async (req, res) => {
+  const days  = req.query.days  ? parseInt(req.query.days, 10)  : null;
+  const limit = req.query.limit ? parseInt(req.query.limit, 10) : null;
+  if (!days && !limit) return res.status(400).json({ error: 'Provide ?days=N or ?limit=N' });
+  try {
+    const results = await resyncCachedStandings({ days, limit });
+    res.json({ ok: true, count: results.length, results });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

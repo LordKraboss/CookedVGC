@@ -206,4 +206,39 @@ async function syncStandings(id) {
   return mapped;
 }
 
-module.exports = { syncTournaments, syncStandings };
+// Re-fetches cached Limitless standings so they pick up mapping fields added
+// since they were first cached (e.g. Stat Alignment). Must run in-process (not
+// as a separate `docker compose exec` script) — schema.js's SIGTERM handler
+// flushes this process's own in-memory DB to disk on shutdown, which would
+// clobber writes made by a short-lived external process the moment this
+// long-running server is next restarted.
+async function resyncCachedStandings({ limit = null, days = null } = {}) {
+  const db = await getDb();
+  const rows = days
+    ? db.prepare(`
+        SELECT id, name, date FROM tournaments
+        WHERE source = 'limitless' AND has_lists = 1 AND date >= :since
+        ORDER BY date DESC
+      `).all({ since: new Date(Date.now() - days * 86400_000).toISOString() })
+    : db.prepare(`
+        SELECT id, name, date FROM tournaments
+        WHERE source = 'limitless' AND has_lists = 1
+        ORDER BY date DESC
+        LIMIT :limit
+      `).all({ limit });
+
+  const results = [];
+  for (const t of rows) {
+    try {
+      const standings = await syncStandings(t.id);
+      const hasAlign = standings.some(p => p.team?.some(pk => pk.statAlignment));
+      results.push({ id: t.id, name: t.name, ok: true, hasAlign });
+    } catch (err) {
+      results.push({ id: t.id, name: t.name, ok: false, error: err.message });
+    }
+    await delay(600);
+  }
+  return results;
+}
+
+module.exports = { syncTournaments, syncStandings, resyncCachedStandings };
