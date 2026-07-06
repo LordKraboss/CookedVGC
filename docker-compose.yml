@@ -15,6 +15,7 @@ services:
     environment:
       - PORT=3001
       - CLIENT_ORIGINS=https://${DOMAIN}
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-}
     volumes:
       # DB (vgc.db) + Champions caches — survives rebuilds and reboots
       - ./backend/data:/app/backend/data
