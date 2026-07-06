@@ -158,7 +158,7 @@ async function syncTournaments() {
           ? p.decklist.map(pk => ({
               name: pk.name, item: pk.item ?? '', ability: pk.ability ?? '',
               moves: Array.isArray(pk.attacks) ? pk.attacks.slice(0, 4) : [],
-              teraType: pk.tera ?? null,
+              teraType: pk.tera ?? null, statAlignment: pk.nature ?? null,
             }))
           : null,
       }));
@@ -191,7 +191,7 @@ async function syncStandings(id) {
       ? p.decklist.map(pk => ({
           name: pk.name, item: pk.item ?? '', ability: pk.ability ?? '',
           moves: Array.isArray(pk.attacks) ? pk.attacks.slice(0, 4) : [],
-          teraType: pk.tera ?? null,
+          teraType: pk.tera ?? null, statAlignment: pk.nature ?? null,
         }))
       : null,
   }));
