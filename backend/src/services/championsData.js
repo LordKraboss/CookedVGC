@@ -252,6 +252,28 @@ async function loadItemDescriptions() {
   return data;
 }
 
+/**
+ * Returns Showdown's ability description text as { id: { name, shortDesc, desc } }.
+ * Source is data/text/abilities.ts (pure-data, parseTsObject-safe). Global to all
+ * formats — Champions doesn't restrict abilities. Memoised + disk-cached (same
+ * 30-day stale window as the other Showdown caches).
+ */
+let _abilityTexts = null;
+async function loadAbilityDescriptions() {
+  if (_abilityTexts) return _abilityTexts;
+  let cached = readCache("ability-texts");
+  if (cached && !isStale("ability-texts")) { _abilityTexts = cached; return cached; }
+  const url = `${DATA_URL}/text/abilities.ts`;
+  console.log(`[champions] Fetching ${url}...`);
+  const res = await fetch(url, { headers: { "User-Agent": "pokemon-vgc-tool/1.0" } });
+  if (!res.ok) throw new Error(`[champions] text/abilities.ts fetch failed: ${res.status}`);
+  const data = parseTsObject(await res.text());
+  writeCache("ability-texts", data);
+  _abilityTexts = data;
+  console.log(`[champions] Ability descriptions cached (${Object.keys(data).length} entries)`);
+  return data;
+}
+
 // ── items.ts category parser ────────────────────────────────────────────────
 // Showdown items have no `flags` object; category membership is expressed via
 // individual fields (megaStone, isBerry, isGem, …). We line-parse them into a
@@ -402,7 +424,8 @@ async function refreshChampionsMod() {
   _moveDex       = null;
   _itemTexts     = null;
   _itemCategories = null;
-  for (const key of ["champions-learnsets", "champions-formats", "champions-items", "base-items", "champions-moves", "item-texts", "item-categories"]) {
+  _abilityTexts  = null;
+  for (const key of ["champions-learnsets", "champions-formats", "champions-items", "base-items", "champions-moves", "item-texts", "item-categories", "ability-texts"]) {
     const f = cacheFile(key);
     try { if (fs.existsSync(f)) fs.unlinkSync(f); } catch {}
   }
@@ -411,4 +434,4 @@ async function refreshChampionsMod() {
   console.log("[champions] Cache refreshed");
 }
 
-module.exports = { getChampionsLearnset, getLegalChampionsPokemon, getLegalChampionsItems, getChampionsMoveDex, loadItemDescriptions, loadItemCategories, refreshChampionsMod, loadLearnsets, loadFormatsData };
+module.exports = { getChampionsLearnset, getLegalChampionsPokemon, getLegalChampionsItems, getChampionsMoveDex, loadItemDescriptions, loadItemCategories, loadAbilityDescriptions, refreshChampionsMod, loadLearnsets, loadFormatsData };

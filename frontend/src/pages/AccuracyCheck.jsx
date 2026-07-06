@@ -56,28 +56,28 @@ function DistRows({ n, atLeast, exact, unit, zeroDesc }) {
         const al = atLeast[k] * 100, ex = exact[k] * 100, allK = k === n;
         return (
           <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, minWidth: 78, color: 'var(--text-secondary)' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 14, minWidth: 84, color: 'var(--text-secondary)' }}>
               {allK ? `all ${k}` : `≥ ${k}`} <span style={{ color: 'var(--text-muted)' }}>of {n}</span>
             </span>
-            <div style={{ flex: 1, height: 8, background: 'var(--bg3)', borderRadius: 4, overflow: 'hidden' }}>
+            <div style={{ flex: 1, height: 9, background: 'var(--bg3)', borderRadius: 4, overflow: 'hidden' }}>
               <div style={{ height: '100%', borderRadius: 4, width: `${al}%`, background: chanceColor(al), opacity: 0.7 }} />
             </div>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 800, minWidth: 56, textAlign: 'right', color: chanceColor(al) }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800, minWidth: 62, textAlign: 'right', color: chanceColor(al) }}>
               {fmtPct(atLeast[k])}%
             </span>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-muted)', minWidth: 90, textAlign: 'right' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--text-muted)', minWidth: 100, textAlign: 'right' }}>
               exactly {fmtPct(exact[k])}%
             </span>
           </div>
         );
       })}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderTop: '1px solid var(--border)', marginTop: 2, paddingTop: 6 }}>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, minWidth: 78, color: 'var(--text-muted)' }}>0 {unit}</span>
-        <span style={{ flex: 1, fontSize: 11, color: 'var(--text-muted)' }}>{zeroDesc}</span>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--text-muted)', minWidth: 56, textAlign: 'right' }}>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 14, minWidth: 84, color: 'var(--text-muted)' }}>0 {unit}</span>
+        <span style={{ flex: 1, fontSize: 13, color: 'var(--text-muted)' }}>{zeroDesc}</span>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 14, color: 'var(--text-muted)', minWidth: 62, textAlign: 'right' }}>
           {fmtPct(exact[0])}%
         </span>
-        <span style={{ minWidth: 90 }} />
+        <span style={{ minWidth: 100 }} />
       </div>
     </div>
   );
@@ -121,17 +121,17 @@ function ModChip({ mod, active, disabled, onToggle }) {
       disabled={disabled}
       title={mod.note ?? ''}
       style={{
-        padding: '5px 10px', borderRadius: 7, fontSize: 11.5, cursor: disabled ? 'not-allowed' : 'pointer',
+        padding: '6px 12px', borderRadius: 7, fontSize: 13.5, cursor: disabled ? 'not-allowed' : 'pointer',
         fontFamily: 'var(--mono)', fontWeight: active ? 700 : 500, textAlign: 'left',
         opacity: disabled ? 0.4 : 1,
         background: active ? `color-mix(in srgb, ${color} 18%, transparent)` : 'var(--bg2)',
         border: `1px solid ${active ? color : 'var(--border)'}`,
         color: active ? color : 'var(--text-secondary)',
-        display: 'flex', flexDirection: 'column', gap: 1, minWidth: 116,
+        display: 'flex', flexDirection: 'column', gap: 1, minWidth: 132,
       }}
     >
       <span>{mod.label}</span>
-      <span style={{ fontSize: 9.5, opacity: 0.85, fontWeight: 600 }}>
+      <span style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>
         {mod.always ? 'always hits' : fmtMult(mod.mult)}{mod.note ? ` · ${mod.note}` : ''}
       </span>
     </button>
@@ -142,16 +142,16 @@ function ModChip({ mod, active, disabled, onToggle }) {
 function StageControl({ label, value, onChange }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
+      <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{label}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <button onClick={() => onChange(clamp(value - 1, -6, 6))}
-          style={{ width: 22, height: 22, padding: 0, fontSize: 13, color: '#f87171', fontWeight: 700 }}>−</button>
+          style={{ width: 25, height: 25, padding: 0, fontSize: 15, color: '#f87171', fontWeight: 700 }}>−</button>
         <span style={{
-          fontFamily: 'var(--mono)', fontSize: 13, minWidth: 28, textAlign: 'center',
+          fontFamily: 'var(--mono)', fontSize: 15, minWidth: 32, textAlign: 'center',
           color: value > 0 ? '#4ade80' : value < 0 ? '#f87171' : 'var(--text-muted)', fontWeight: value !== 0 ? 700 : 400,
         }}>{value > 0 ? `+${value}` : value}</span>
         <button onClick={() => onChange(clamp(value + 1, -6, 6))}
-          style={{ width: 22, height: 22, padding: 0, fontSize: 13, color: '#4ade80', fontWeight: 700 }}>+</button>
+          style={{ width: 25, height: 25, padding: 0, fontSize: 15, color: '#4ade80', fontWeight: 700 }}>+</button>
       </div>
     </div>
   );
@@ -160,7 +160,7 @@ function StageControl({ label, value, onChange }) {
 function Group({ title, children }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: 'var(--text-muted)', marginBottom: 6 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.07em', color: 'var(--text-muted)', marginBottom: 7 }}>
         {title}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{children}</div>
@@ -170,7 +170,7 @@ function Group({ title, children }) {
 
 const PANEL = {
   background: 'var(--bg1)', border: '1px solid var(--border)', borderRadius: 12,
-  padding: 16, display: 'flex', flexDirection: 'column', gap: 16, flex: 1, minWidth: 280,
+  padding: 18, display: 'flex', flexDirection: 'column', gap: 18, flex: 1, minWidth: 320,
 };
 
 const defaultSide = () => ({ stage: 0 });
@@ -244,10 +244,10 @@ export default function AccuracyCheck() {
   const reset = () => { setAtk({ ...defaultSide() }); setTgt({ ...defaultSide() }); };
 
   return (
-    <div style={{ maxWidth: 920 }}>
+    <div>
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.02em' }}>Accuracy Check</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>
+        <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-.02em' }}>Accuracy Check</h1>
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginTop: 4 }}>
           Chance to land a move after accuracy/evasion stages and item/ability modifiers.
         </p>
       </div>
@@ -265,9 +265,9 @@ export default function AccuracyCheck() {
           />
         </div>
         {move && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--mono)', fontSize: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--mono)', fontSize: 14 }}>
             <span style={{ color: 'var(--text-muted)' }}>Base acc</span>
-            <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>
+            <span style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-primary)' }}>
               {move.accuracy === true || move.accuracy == null ? '—' : `${move.accuracy}%`}
             </span>
             {move.category && (
@@ -275,13 +275,13 @@ export default function AccuracyCheck() {
             )}
           </div>
         )}
-        <button onClick={reset} style={{ fontSize: 11, padding: '5px 12px' }}>Reset modifiers</button>
+        <button onClick={reset} style={{ fontSize: 13, padding: '6px 13px' }}>Reset modifiers</button>
       </div>
 
       {/* Two side panels */}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
         <div style={PANEL}>
-          <span style={{ fontSize: 13, fontWeight: 800 }}>⚔ Attacker</span>
+          <span style={{ fontSize: 15, fontWeight: 800 }}>⚔ Attacker</span>
           <StageControl label="Accuracy stage" value={atk.stage} onChange={v => setAtk(s => ({ ...s, stage: v }))} />
           <Group title="ABILITY">
             {ATK_ABILITIES.map(m => (
@@ -303,7 +303,7 @@ export default function AccuracyCheck() {
         </div>
 
         <div style={PANEL}>
-          <span style={{ fontSize: 13, fontWeight: 800 }}>🛡 Target</span>
+          <span style={{ fontSize: 15, fontWeight: 800 }}>🛡 Target</span>
           <StageControl label="Evasion stage" value={tgt.stage} onChange={v => setTgt(s => ({ ...s, stage: v }))} />
           <Group title="ABILITY">
             {TGT_ABILITIES.map(m => (
@@ -320,36 +320,36 @@ export default function AccuracyCheck() {
 
       {/* Result */}
       {!move && (
-        <div style={{ ...PANEL, alignItems: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+        <div style={{ ...PANEL, alignItems: 'center', color: 'var(--text-muted)', fontSize: 15 }}>
           Pick a move to see its hit chance.
         </div>
       )}
 
       {result?.guaranteed && (
         <div style={{ ...PANEL, gap: 8 }}>
-          <span style={{ fontSize: 34, fontWeight: 900, color: '#4ade80' }}>100%</span>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{result.reason}</span>
+          <span style={{ fontSize: 38, fontWeight: 900, color: '#4ade80' }}>100%</span>
+          <span style={{ fontSize: 15, color: 'var(--text-secondary)' }}>{result.reason}</span>
         </div>
       )}
 
       {result && !result.guaranteed && (
         <div style={{ ...PANEL, gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 44, fontWeight: 900, color: chanceColor(result.chance) }}>
+            <span style={{ fontSize: 50, fontWeight: 900, color: chanceColor(result.chance) }}>
               {result.chance.toFixed(1).replace(/\.0$/, '')}%
             </span>
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: 15, color: 'var(--text-muted)' }}>
               to hit · {(100 - result.chance).toFixed(1).replace(/\.0$/, '')}% to miss
             </span>
             {result.eff > 100 && (
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
                 (effective {result.eff.toFixed(1)}% → capped, guaranteed)
               </span>
             )}
           </div>
 
           {/* Breakdown */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontFamily: 'var(--mono)', fontSize: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontFamily: 'var(--mono)', fontSize: 14 }}>
             <BreakRow label="Base accuracy" value={`${result.base}%`} />
             {result.net !== 0 && (
               <BreakRow
@@ -374,8 +374,8 @@ export default function AccuracyCheck() {
       {move && multiHit && (
         <div style={{ ...PANEL, marginTop: 16, gap: 14 }}>
           <div>
-            <span style={{ fontSize: 13, fontWeight: 800 }}>🎯 Multi-hit — {move.name ?? moveName}</span>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+            <span style={{ fontSize: 15, fontWeight: 800 }}>🎯 Multi-hit — {move.name ?? moveName}</span>
+            <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 2 }}>
               Each of the {multiHit.n} strikes rolls accuracy and the move stops on the first miss
               {' '}· {fmtPct(multiHit.p)}% per strike · expected{' '}
               <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>{multiHit.expected.toFixed(2)}</span> strikes.
@@ -391,19 +391,19 @@ export default function AccuracyCheck() {
         <div style={{ ...PANEL, marginTop: 16, gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <span style={{ fontSize: 13, fontWeight: 800 }}>🎯 Repeated use</span>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+              <span style={{ fontSize: 15, fontWeight: 800 }}>🎯 Repeated use</span>
+              <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 2 }}>
                 Cumulative chance to land each number of hits across {multi.n} uses
                 {' '}at {fmtPct(multi.p)}% each.
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '.06em' }}>USES</span>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '.06em' }}>USES</span>
               <button onClick={() => setAttempts(a => clamp(a - 1, 1, MAX_ATTEMPTS))}
-                style={{ width: 24, height: 24, padding: 0, fontSize: 14, color: '#f87171', fontWeight: 700 }}>−</button>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800, minWidth: 20, textAlign: 'center' }}>{multi.n}</span>
+                style={{ width: 27, height: 27, padding: 0, fontSize: 16, color: '#f87171', fontWeight: 700 }}>−</button>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 17, fontWeight: 800, minWidth: 22, textAlign: 'center' }}>{multi.n}</span>
               <button onClick={() => setAttempts(a => clamp(a + 1, 1, MAX_ATTEMPTS))}
-                style={{ width: 24, height: 24, padding: 0, fontSize: 14, color: '#4ade80', fontWeight: 700 }}>+</button>
+                style={{ width: 27, height: 27, padding: 0, fontSize: 16, color: '#4ade80', fontWeight: 700 }}>+</button>
             </div>
           </div>
           <DistRows n={multi.n} atLeast={multi.atLeast} exact={multi.exact}

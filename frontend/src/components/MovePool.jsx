@@ -41,7 +41,7 @@ function CategoryBadge({ category }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center',
       padding: '2px 8px', borderRadius: 99,
-      fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)',
+      fontSize: 13, fontWeight: 700, fontFamily: 'var(--mono)',
       letterSpacing: '.04em',
       color: cfg.color, background: cfg.bg,
       border: `1px solid ${cfg.color}40`,
@@ -87,25 +87,25 @@ function MoveTooltip({ move, rect }) {
             background: `var(--t-${move.type}, #888)`,
           }} />
         )}
-        <span style={{ fontSize: 13, fontWeight: 700, flex: 1 }}>{move.name}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, flex: 1 }}>{move.name}</span>
         <CategoryBadge category={move.category} />
       </div>
 
       {/* Power · Acc · PP in one compact line */}
       <div style={{
         display: 'flex', gap: 14, marginBottom: 8,
-        fontSize: 12, fontFamily: 'var(--mono)',
+        fontSize: 14, fontFamily: 'var(--mono)',
       }}>
         <span>
-          <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>Power </span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>Power </span>
           <strong>{power}</strong>
         </span>
         <span>
-          <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>Acc. </span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>Acc. </span>
           <strong>{acc}</strong>
         </span>
         <span>
-          <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>PP </span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>PP </span>
           <strong>{move.pp ?? '—'}</strong>
         </span>
       </div>
@@ -113,7 +113,7 @@ function MoveTooltip({ move, rect }) {
       {/* Short description */}
       {move.shortDesc && (
         <p style={{
-          fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5,
+          fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
           marginBottom: flags.length ? 8 : 0,
           fontStyle: 'italic',
         }}>
@@ -126,7 +126,7 @@ function MoveTooltip({ move, rect }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
           {flags.map(f => (
             <span key={f} style={{
-              fontSize: 10, padding: '2px 7px', borderRadius: 99,
+              fontSize: 12, padding: '2px 7px', borderRadius: 99,
               background: 'var(--bg3)', color: 'var(--text-muted)',
               fontFamily: 'var(--mono)', border: '1px solid var(--border)',
             }}>
@@ -161,11 +161,11 @@ function MoveChip({ move, onMouseEnter, onMouseLeave, onClick, inTeam, isPriorit
           width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
           background: `var(--t-${type}, #78c850)`,
         }} />
-        <span style={{ fontSize: 12, fontWeight: 600, color: `var(--t-${type}, #78c850)` }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: `var(--t-${type}, #78c850)` }}>
           {move.name}
         </span>
         <span style={{
-          fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)',
+          fontSize: 12, fontWeight: 700, fontFamily: 'var(--mono)',
           color: `var(--t-${type}, #78c850)`, opacity: 0.85,
         }}>
           {move.priority > 0 ? `+${move.priority}` : move.priority}
@@ -192,7 +192,7 @@ function MoveChip({ move, onMouseEnter, onMouseLeave, onClick, inTeam, isPriorit
         width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
         background: `var(--t-${type}, #888)`,
       }} />
-      <span style={{ fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap' }}>
         {move.name}
       </span>
     </div>
@@ -255,21 +255,21 @@ export function MovePool({ pokemonName, regId }) {
     <div className="card" style={{ marginTop: 16 }}>
       {/* Header */}
       <div style={{
-        fontSize: 10, fontWeight: 700, letterSpacing: '.1em',
+        fontSize: 12, fontWeight: 700, letterSpacing: '.09em',
         textTransform: 'uppercase', color: 'var(--accent)',
         fontFamily: 'var(--mono)', marginBottom: 6,
       }}>
         Move List
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 2 }}>
-        <div style={{ fontSize: 18, fontWeight: 800 }}>Moves learned by {pokemonName}</div>
+        <div style={{ fontSize: 21, fontWeight: 800 }}>Moves learned by {pokemonName}</div>
         {inTeam && (
-          <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--mono)' }}>
+          <span style={{ fontSize: 14, color: 'var(--accent)', fontFamily: 'var(--mono)' }}>
             · click a move to assign it
           </span>
         )}
       </div>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 18 }}>
+      <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 18 }}>
         Curated moves available in Pokémon Champions.
       </div>
 
@@ -277,7 +277,7 @@ export function MovePool({ pokemonName, regId }) {
       {priorityMoves.length > 0 && (
         <div style={{ marginBottom: 18 }}>
           <div style={{
-            fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)',
+            fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)',
             fontFamily: 'var(--mono)', marginBottom: 10,
           }}>
             Priority Moves
@@ -316,7 +316,7 @@ export function MovePool({ pokemonName, regId }) {
       {negativeMoves.length > 0 && (
         <div style={{ marginTop: 18 }}>
           <div style={{
-            fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)',
+            fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)',
             fontFamily: 'var(--mono)', marginBottom: 10,
           }}>
             Negative Priority Moves
@@ -360,20 +360,20 @@ export function MovePool({ pokemonName, regId }) {
               }}
               onClick={e => e.stopPropagation()}
             >
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
+              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
                 Assign — {pendingMove.name}
               </div>
 
               {isDuplicate ? (
                 <div style={{
-                  fontSize: 12, color: '#fbbf24',
+                  fontSize: 14, color: '#fbbf24',
                   background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)',
                   borderRadius: 8, padding: '8px 12px', marginBottom: 16,
                 }}>
                   ⚠ {pokemonName} already knows {pendingMove.name}.
                 </div>
               ) : (
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
                   Pick which move to replace on {pokemonName}:
                 </div>
               )}
@@ -387,7 +387,7 @@ export function MovePool({ pokemonName, regId }) {
                       onClick={() => !isDuplicate && handleReplaceMove(i)}
                       disabled={isDuplicate}
                       style={{
-                        padding: '10px 14px', fontSize: 13, textAlign: 'left',
+                        padding: '10px 14px', fontSize: 15, textAlign: 'left',
                         background: isThisSlotDuplicate ? 'rgba(251,191,36,0.1)' : 'var(--bg2)',
                         borderColor: isThisSlotDuplicate ? 'rgba(251,191,36,0.4)' : 'var(--border-hover)',
                         borderRadius: 8, fontWeight: 600,
@@ -406,7 +406,7 @@ export function MovePool({ pokemonName, regId }) {
 
               <button
                 onClick={() => setPendingMove(null)}
-                style={{ marginTop: 12, width: '100%', fontSize: 12, color: 'var(--text-muted)' }}
+                style={{ marginTop: 12, width: '100%', fontSize: 14, color: 'var(--text-muted)' }}
               >
                 Cancel
               </button>

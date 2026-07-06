@@ -46,16 +46,16 @@ function ResultPanel({ code, onImport }) {
 
   return (
     <div>
-      <div style={{ padding: '14px 18px', borderRadius: 12, marginBottom: 14, border: '1px solid var(--border)', background: 'var(--bg1)' }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>{t.name}</div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>{formatDate(t.completedAt)}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: 'var(--bg3)', color: 'var(--text-secondary)' }}>{t.participants.length} players</span>
-          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in srgb, var(--accent) 14%, transparent)', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)' }}>
+      <div style={{ padding: '16px 20px', borderRadius: 12, marginBottom: 16, border: '1px solid var(--border)', background: 'var(--bg1)' }}>
+        <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 7 }}>{t.name}</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>{formatDate(t.completedAt)}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 4, background: 'var(--bg3)', color: 'var(--text-secondary)' }}>{t.participants.length} players</span>
+          <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 4, background: 'color-mix(in srgb, var(--accent) 14%, transparent)', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)' }}>
             {FORMAT_LABEL[t.format] ?? t.format}
           </span>
-          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: 'var(--bg3)', color: 'var(--text-secondary)' }}>{t.regId}</span>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>teamsheet {t.config?.teamsheet} · click a Pokémon to expand</span>
+          <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 4, background: 'var(--bg3)', color: 'var(--text-secondary)' }}>{t.regId}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)', marginLeft: 'auto' }}>teamsheet {t.config?.teamsheet} · click a Pokémon to expand</span>
         </div>
       </div>
 
@@ -127,10 +127,10 @@ export default function TournamentResults() {
   const infoRight = <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{list.length} tournament{list.length === 1 ? '' : 's'} archived</span>;
 
   return (
-    <div style={{ maxWidth: 1260, margin: '0 auto' }}>
+    <div>
       <div style={{ marginBottom: 18 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>🏆 Tournament Results</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Your own completed tournaments — final standings, every team, importable.</p>
+        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>🏆 Tournament Results</h1>
+        <p style={{ fontSize: 15, color: 'var(--text-muted)' }}>Your own completed tournaments — final standings, every team, importable.</p>
       </div>
 
       <FilterBar filters={filters} setFilters={updateFilters} formats={regOptions} showSource={false} infoRight={infoRight} />
@@ -166,10 +166,10 @@ export default function TournamentResults() {
         {/* detail */}
         <div style={{ flex: 1, minWidth: 0 }}>
           {!selectedCode ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', borderRadius: 12, border: '1px dashed var(--border)', color: 'var(--text-muted)', fontSize: 13, gap: 12 }}>
-              <span style={{ fontSize: 32 }}>🏆</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', borderRadius: 12, border: '1px dashed var(--border)', color: 'var(--text-muted)', fontSize: 15, gap: 12 }}>
+              <span style={{ fontSize: 36 }}>🏆</span>
               <span style={{ fontWeight: 600 }}>Select a tournament to view results</span>
-              <span style={{ fontSize: 12, opacity: .7 }}>Click any event on the left</span>
+              <span style={{ fontSize: 14, opacity: .7 }}>Click any event on the left</span>
             </div>
           ) : (
             <ResultPanel key={selectedCode} code={selectedCode} onImport={handleImport} />

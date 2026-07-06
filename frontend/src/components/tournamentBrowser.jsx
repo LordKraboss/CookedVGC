@@ -213,9 +213,9 @@ export function SkeletonStanding() {
         <div style={{ height: 14, width: 140, borderRadius: 4, background: 'var(--bg3)' }} />
         <div style={{ height: 12, width: 60, borderRadius: 4, background: 'var(--bg3)' }} />
       </div>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 10 }}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} style={{ height: 70, width: 90, borderRadius: 8, background: 'var(--bg3)', flexShrink: 0 }} />
+          <div key={i} style={{ height: 88, width: 150, borderRadius: 10, background: 'var(--bg3)', flexShrink: 0 }} />
         ))}
       </div>
     </div>
@@ -240,31 +240,31 @@ export function StandingRow({ entry, onImport }) {
 
   return (
     <div style={{
-      padding: '14px 18px', borderRadius: 12,
+      padding: '16px 20px', borderRadius: 12,
       border: '1px solid var(--border)', background: 'var(--bg1)',
       opacity: entry.placing == null ? 0.45 : 1,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: hasTeam ? 12 : 0, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: hasTeam ? 14 : 0, flexWrap: 'wrap' }}>
         <span style={{
-          fontSize: entry.placing && entry.placing <= 3 ? 20 : 12, fontWeight: 800,
+          fontSize: entry.placing && entry.placing <= 3 ? 23 : 14, fontWeight: 800,
           fontFamily: entry.placing && entry.placing <= 3 ? undefined : 'var(--mono)',
-          color: entry.placing && entry.placing <= 3 ? undefined : 'var(--text-muted)', minWidth: 30,
+          color: entry.placing && entry.placing <= 3 ? undefined : 'var(--text-muted)', minWidth: 34,
         }}>
           {placingLabel(entry.placing)}
         </span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>
           {entry.name}
-          {entry.country && <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400, marginLeft: 6 }}>{entry.country}</span>}
+          {entry.country && <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 400, marginLeft: 6 }}>{entry.country}</span>}
         </span>
         {record && (
-          <span style={{ fontSize: 12, fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--text-secondary)', background: 'var(--bg3)', padding: '3px 8px', borderRadius: 5 }}>
+          <span style={{ fontSize: 14, fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--text-secondary)', background: 'var(--bg3)', padding: '4px 9px', borderRadius: 5 }}>
             {record}
           </span>
         )}
         {hasTeam && onImport && (
           <button onClick={handleImport}
             style={{
-              fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+              fontSize: 13, fontWeight: 700, padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
               border: `1px solid ${justImported ? '#4ade80' : 'var(--accent)'}`,
               background: justImported ? 'color-mix(in srgb, #4ade80 15%, transparent)' : 'color-mix(in srgb, var(--accent) 12%, transparent)',
               color: justImported ? '#4ade80' : 'var(--accent)', transition: 'all .2s', whiteSpace: 'nowrap',
@@ -274,14 +274,14 @@ export function StandingRow({ entry, onImport }) {
         )}
       </div>
       {hasTeam && (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {entry.team.map((pk, i) => (
-            <PokemonChip key={i} pokemon={pk} expanded={expanded} onToggle={() => setExpanded(v => !v)} />
+            <PokemonChip key={i} pokemon={pk} expanded={expanded} onToggle={() => setExpanded(v => !v)} size="lg" />
           ))}
         </div>
       )}
       {!hasTeam && (
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 4 }}>No team list available</div>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 4 }}>No team list available</div>
       )}
     </div>
   );

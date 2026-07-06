@@ -6,7 +6,7 @@ const { refreshPokedex } = require("../services/showdownData");
 const { getAllRegs, getRegById, getActiveReg } = require("../../../shared/regulations");
 const { loadMoveDex, loadAbilityDex, loadItemDex, loadPokedex, toShowdownId, getPokemonGen9Moves } = require("../services/showdownData");
 const { getLocalSpriteUrl } = require("../services/sprites");
-const { getLegalChampionsItems, getChampionsMoveDex, loadItemDescriptions, loadItemCategories } = require("../services/championsData");
+const { getLegalChampionsItems, getChampionsMoveDex, loadItemDescriptions, loadItemCategories, loadAbilityDescriptions } = require("../services/championsData");
 
 function norm(s) { return (s ?? '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
@@ -186,12 +186,12 @@ router.get("/pokemon/:name/meta", async (req, res) => {
     if (!sdRow) return res.status(404).json({ error: "Pokémon not found in this regulation" });
     let pdxAbilities = [];
     try {
-      const pdx = await loadPokedex();
+      const [pdx, abilityTexts] = await Promise.all([loadPokedex(), loadAbilityDescriptions().catch(() => ({}))]);
       const entry = pdx[toShowdownId(sdRow.name)];
       if (entry?.abilities) {
         pdxAbilities = Object.values(entry.abilities)
           .filter(Boolean)
-          .map(name => ({ name, pct: 0, displayName: name }));
+          .map(name => ({ name, pct: 0, displayName: name, shortDesc: abilityTexts[norm(name)]?.shortDesc ?? '' }));
       }
     } catch {}
     return res.json({
@@ -219,12 +219,13 @@ router.get("/pokemon/:name/meta", async (req, res) => {
 
   // Load dexes in parallel — all are cached in memory after first call.
   // Wrap in try/catch so a transient network failure doesn't crash the whole route.
-  let moveDex = {}, itemDex = {}, abilityDex = {};
+  let moveDex = {}, itemDex = {}, abilityDex = {}, abilityTexts = {};
   try {
-    [moveDex, itemDex, abilityDex] = await Promise.all([
+    [moveDex, itemDex, abilityDex, abilityTexts] = await Promise.all([
       reg.dexGen === 'champions' ? getChampionsMoveDex() : loadMoveDex(),
       loadItemDex(),
       loadAbilityDex(),
+      loadAbilityDescriptions(),
     ]);
   } catch (err) {
     console.error('[meta] Failed to load enrichment dexes:', err.message);
@@ -261,10 +262,11 @@ router.get("/pokemon/:name/meta", async (req, res) => {
     displayName: itemDex[norm(it.name)] ?? it.name,
   }));
 
-  // Enrich abilities: add display name
+  // Enrich abilities: add display name + short description
   const enrichedAbilities = rawAbilities.map(ab => ({
     ...ab,
     displayName: abilityDex[norm(ab.name)] ?? ab.name,
+    shortDesc: abilityTexts[norm(ab.name)]?.shortDesc ?? '',
   }));
 
   res.json({
