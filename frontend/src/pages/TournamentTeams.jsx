@@ -29,25 +29,25 @@ function StandingsPanel({ tournament, onImport }) {
     <div>
       {/* Tournament header */}
       <div style={{
-        padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+        padding: '16px 20px', borderRadius: 12, marginBottom: 16,
         border: '1px solid var(--border)', background: 'var(--bg1)',
       }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>
+        <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 7 }}>
           {tournament.name}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
             {formatDate(tournament.date)}
           </span>
           <span style={{
-            fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+            fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 4,
             background: 'var(--bg3)', color: 'var(--text-secondary)',
           }}>
             {tournament.players} players
           </span>
           {tournament.format && tournament.format !== 'CUSTOM' && (
             <span style={{
-              fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+              fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 4,
               background: 'color-mix(in srgb, var(--accent) 14%, transparent)',
               color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
             }}>
@@ -55,7 +55,7 @@ function StandingsPanel({ tournament, onImport }) {
             </span>
           )}
           {standings && (
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)', marginLeft: 'auto' }}>
               {standings.length} players · click a Pokémon to expand
             </span>
           )}
@@ -92,7 +92,7 @@ function StandingsPanel({ tournament, onImport }) {
                 marginTop: 12, width: '100%', padding: '10px',
                 borderRadius: 8, border: '1px dashed var(--border)',
                 background: 'transparent', cursor: 'pointer',
-                fontSize: 12, fontWeight: 600, color: 'var(--text-muted)',
+                fontSize: 14, fontWeight: 600, color: 'var(--text-muted)',
               }}
               onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--text-muted)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
@@ -184,11 +184,11 @@ export default function TournamentTeams() {
   );
 
   return (
-    <div style={{ maxWidth: 1260, margin: '0 auto' }}>
+    <div>
       {/* Header */}
       <div style={{ marginBottom: 18 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>Tournament Teams</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>Tournament Teams</h1>
+        <p style={{ fontSize: 15, color: 'var(--text-muted)' }}>
           VGC event results · powered by{' '}
           <a href="https://play.limitlesstcg.com" target="_blank" rel="noreferrer"
             style={{ color: 'var(--accent)', textDecoration: 'none' }}>
@@ -260,13 +260,13 @@ export default function TournamentTeams() {
           {!selectedTournament ? (
             <div style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', padding: '80px 20px',
+              justifyContent: 'center', padding: '100px 20px',
               borderRadius: 12, border: '1px dashed var(--border)',
-              color: 'var(--text-muted)', fontSize: 13, gap: 12,
+              color: 'var(--text-muted)', fontSize: 15, gap: 12,
             }}>
-              <span style={{ fontSize: 32 }}>◈</span>
+              <span style={{ fontSize: 36 }}>◈</span>
               <span style={{ fontWeight: 600 }}>Select a tournament to view top teams</span>
-              <span style={{ fontSize: 12, opacity: .7 }}>Click any event on the left</span>
+              <span style={{ fontSize: 14, opacity: .7 }}>Click any event on the left</span>
             </div>
           ) : (
             <StandingsPanel

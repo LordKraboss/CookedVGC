@@ -28,13 +28,13 @@ function MatchupGroup({ label, items }) {
   }
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: 'var(--text-muted)', marginBottom: 8, fontFamily: 'var(--mono)' }}>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.07em', color: 'var(--text-muted)', marginBottom: 9, fontFamily: 'var(--mono)' }}>
         {label}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
         {packs.map(pack => (
           <div key={pack.mult} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="mono" style={{ fontSize: 12, fontWeight: 700, width: 34, flexShrink: 0, color: matchupColor(pack.mult) }}>
+            <span className="mono" style={{ fontSize: 14, fontWeight: 700, width: 38, flexShrink: 0, color: matchupColor(pack.mult) }}>
               {multLabel(pack.mult)}
             </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -56,7 +56,7 @@ function TypeMatchups({ types }) {
         <MatchupGroup label="Weak to" items={weak} />
         <MatchupGroup label="Resists" items={resist} />
         {weak.length === 0 && resist.length === 0 && (
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Neutral to all types.</span>
+          <span style={{ fontSize: 15, color: 'var(--text-muted)' }}>Neutral to all types.</span>
         )}
       </div>
     </div>
@@ -65,10 +65,10 @@ function TypeMatchups({ types }) {
 
 function MoveRow({ move, pct }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 9 }}>
       <span style={{
-        fontSize: 13, fontWeight: 600,
-        width: 148, flexShrink: 0,
+        fontSize: 15, fontWeight: 600,
+        width: 168, flexShrink: 0,
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
       }}>
         {move}
@@ -77,7 +77,7 @@ function MoveRow({ move, pct }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <UsageBar pct={pct} />
       </div>
-      <span className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)', width: 44, textAlign: 'right', flexShrink: 0 }}>
+      <span className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)', width: 50, textAlign: 'right', flexShrink: 0 }}>
         {pct.toFixed(1)}%
       </span>
     </div>
@@ -98,15 +98,15 @@ function SpreadRow({ spread, index }) {
       display: 'flex', alignItems: 'center', gap: 12,
     }}>
       {index === 0 && (
-        <span className="mono" style={{ fontSize: 10, color: 'var(--accent)', background: 'var(--accent-dim)', padding: '2px 6px', borderRadius: 4 }}>
+        <span className="mono" style={{ fontSize: 11, color: 'var(--accent)', background: 'var(--accent-dim)', padding: '3px 7px', borderRadius: 4 }}>
           TOP
         </span>
       )}
       <div style={{ flex: 1 }}>
-        <span style={{ fontSize: 13, fontWeight: 600 }}>{nature} </span>
-        <span className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{evStr}</span>
+        <span style={{ fontSize: 15, fontWeight: 600 }}>{nature} </span>
+        <span className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{evStr}</span>
       </div>
-      <span className="mono" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{pct.toFixed(1)}%</span>
+      <span className="mono" style={{ fontSize: 14, color: 'var(--text-muted)' }}>{pct.toFixed(1)}%</span>
     </div>
   );
 }
@@ -192,14 +192,14 @@ export default function MetaAnalysis() {
     <div>
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.02em' }}>Meta analysis</h1>
+          <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-.02em' }}>Meta analysis</h1>
           {updatedOn && (
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>
               Updated {updatedOn}
             </span>
           )}
         </div>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginTop: 4 }}>
           Most-used moveset, EV spreads, items, and teammates from Smogon usage stats.
         </p>
       </div>
@@ -210,7 +210,7 @@ export default function MetaAnalysis() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <button
               onClick={back}
-              style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '5px 12px' }}
+              style={{ fontSize: 14, color: 'var(--text-secondary)', padding: '6px 13px' }}
             >
               ← Back to list
             </button>
@@ -231,12 +231,12 @@ export default function MetaAnalysis() {
 
               {/* ── Row 1: Portrait | Moveset | Abilities ── */}
               <div className="card" style={{ textAlign: 'center' }}>
-                <PokemonImage name={data.name} size={140} spriteUrl={data.spriteUrl} shadow style={{ margin: '0 auto 12px' }} />
-                <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>{data.name}</div>
+                <PokemonImage name={data.name} size={150} spriteUrl={data.spriteUrl} shadow style={{ margin: '0 auto 12px' }} />
+                <div style={{ fontSize: 26, fontWeight: 800, marginBottom: 8 }}>{data.name}</div>
                 <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 12 }}>
                   {data.types.map(t => <TypePill key={t} type={t} />)}
                 </div>
-                <div className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                <div className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
                   Usage: <strong style={{ color: 'var(--text-primary)' }}>{data.usagePct?.toFixed(1)}%</strong>
                   {' '}· {data.regulation?.month}
                 </div>
@@ -252,13 +252,20 @@ export default function MetaAnalysis() {
               <div className="card">
                 <SectionLabel>Abilities</SectionLabel>
                 {data.abilities?.slice(0, 4).map(ab => (
-                  <div key={ab.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {ab.displayName ?? ab.name}
-                    </span>
-                    <span className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)', flexShrink: 0, width: 44, textAlign: 'right' }}>
-                      {ab.pct.toFixed(1)}%
-                    </span>
+                  <div key={ab.name} style={{ marginBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 15, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {ab.displayName ?? ab.name}
+                      </span>
+                      <span className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)', flexShrink: 0, width: 50, textAlign: 'right' }}>
+                        {ab.pct.toFixed(1)}%
+                      </span>
+                    </div>
+                    {ab.shortDesc && (
+                      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.35 }}>
+                        {ab.shortDesc}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -276,11 +283,11 @@ export default function MetaAnalysis() {
               <div className="card">
                 <SectionLabel>Items</SectionLabel>
                 {data.items?.slice(0, 6).map(it => (
-                  <div key={it.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div key={it.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                    <span style={{ fontSize: 15, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {it.displayName ?? it.name}
                     </span>
-                    <span className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)', flexShrink: 0, width: 44, textAlign: 'right' }}>
+                    <span className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)', flexShrink: 0, width: 50, textAlign: 'right' }}>
                       {it.pct.toFixed(1)}%
                     </span>
                   </div>
@@ -307,13 +314,13 @@ export default function MetaAnalysis() {
                         padding: '8px 12px', background: 'var(--bg2)',
                         borderRadius: 8, border: '1px solid var(--border)',
                       }}>
-                        <PokemonImage name={t.name} size={32} spriteUrl={t.spriteUrl} />
-                        <span style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>{t.name}</span>
-                        <span className="mono" style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>
+                        <PokemonImage name={t.name} size={36} spriteUrl={t.spriteUrl} />
+                        <span style={{ fontSize: 15, fontWeight: 600, flex: 1 }}>{t.name}</span>
+                        <span className="mono" style={{ fontSize: 13, color: 'var(--text-muted)', flexShrink: 0 }}>
                           {data.rawCount ? ((t.score / data.rawCount) * 100).toFixed(1) : '—'}%
                         </span>
                         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                          <button onClick={() => submit(t.name)} style={{ padding: '5px 10px', fontSize: 12 }}>View</button>
+                          <button onClick={() => submit(t.name)} style={{ padding: '6px 11px', fontSize: 14 }}>View</button>
                           <AddToTeamButton pokemon={{ name: t.name, types: [], spriteUrl: t.spriteUrl, usagePct: null }} />
                         </div>
                       </div>

@@ -90,32 +90,32 @@ export const PokemonRow = memo(function PokemonRow({ name, types = [], abilities
       }}
     >
       {rank !== undefined && (
-        <span className="mono" style={{ fontSize: 11, color: 'var(--text-muted)', width: 20, textAlign: 'right', flexShrink: 0 }}>
+        <span className="mono" style={{ fontSize: 13, color: 'var(--text-muted)', width: 22, textAlign: 'right', flexShrink: 0 }}>
           {rank}
         </span>
       )}
       <PokemonImage name={name} size={44} spriteUrl={spriteUrl} />
       <div className="pkrow-id" style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {name}
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
           {types.map(t => <TypePill key={t} type={t} />)}
           {abilities.length > 0 && (
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--mono)', marginLeft: 4 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--mono)', marginLeft: 4 }}>
               {abilities.map(a => a.name.replace(/\b\w/g, c => c.toUpperCase())).join(' · ')}
             </span>
           )}
         </div>
       </div>
       {stats && (
-        <div className="pkrow-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 36px)', gap: '2px 6px', flexShrink: 0 }}>
+        <div className="pkrow-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 40px)', gap: '2px 6px', flexShrink: 0 }}>
           {Object.entries(stats).map(([k, v]) => (
             <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--mono)', textTransform: 'uppercase' }}>
                 {STAT_LABELS[k] ?? k}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--mono)', color: statColor(v) }}>
+              <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'var(--mono)', color: statColor(v) }}>
                 {v}
               </span>
             </div>
@@ -125,7 +125,7 @@ export const PokemonRow = memo(function PokemonRow({ name, types = [], abilities
       {usagePct != null && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <UsageBar pct={usagePct} />
-          <span className="mono" style={{ fontSize: 12, color: 'var(--text-secondary)', width: 44, textAlign: 'right' }}>
+          <span className="mono" style={{ fontSize: 14, color: 'var(--text-secondary)', width: 50, textAlign: 'right' }}>
             {usagePct.toFixed(1)}%
           </span>
         </div>
@@ -134,7 +134,7 @@ export const PokemonRow = memo(function PokemonRow({ name, types = [], abilities
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           <button
             onClick={(e) => { e.stopPropagation(); handleView(); }}
-            style={{ padding: '5px 10px', fontSize: 12 }}
+            style={{ padding: '6px 11px', fontSize: 14 }}
           >
             View
           </button>
@@ -151,14 +151,14 @@ export function StatRow({ label, value, max = 255 }) {
   const pct = (value / max) * 100;
   const color = value >= 100 ? '#78c850' : value >= 70 ? '#f8d030' : '#f08030';
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-      <span className="mono" style={{ fontSize: 11, color: 'var(--text-muted)', width: 32, textAlign: 'right', flexShrink: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
+      <span className="mono" style={{ fontSize: 13, color: 'var(--text-muted)', width: 36, textAlign: 'right', flexShrink: 0 }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: 5, background: 'var(--bg3)', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ flex: 1, height: 6, background: 'var(--bg3)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 3, transition: 'width .5s ease' }} />
       </div>
-      <span className="mono" style={{ fontSize: 12, fontWeight: 500, width: 28, textAlign: 'right', flexShrink: 0 }}>
+      <span className="mono" style={{ fontSize: 14, fontWeight: 500, width: 32, textAlign: 'right', flexShrink: 0 }}>
         {value}
       </span>
     </div>
@@ -169,9 +169,9 @@ export function StatRow({ label, value, max = 255 }) {
 export function SectionLabel({ children }) {
   return (
     <div style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: '.1em',
+      fontSize: 12, fontWeight: 700, letterSpacing: '.09em',
       textTransform: 'uppercase', color: 'var(--text-muted)',
-      marginBottom: 10, marginTop: 20,
+      marginBottom: 12, marginTop: 22,
       fontFamily: 'var(--mono)',
     }}>
       {children}
@@ -183,8 +183,8 @@ export function SectionLabel({ children }) {
 export function EmptyState({ icon = '🔍', message }) {
   return (
     <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-      <div style={{ fontSize: 32, marginBottom: 10 }}>{icon}</div>
-      <div style={{ fontSize: 13 }}>{message}</div>
+      <div style={{ fontSize: 36, marginBottom: 10 }}>{icon}</div>
+      <div style={{ fontSize: 15 }}>{message}</div>
     </div>
   );
 }
