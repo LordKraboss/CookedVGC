@@ -7,6 +7,7 @@ import { calculate, Generations, Pokemon as CalcPokemon, Move as CalcMove, Field
 import { getUsage, getPokemonMeta, getMoveSuggestions, getItemSuggestions } from '../lib/api';
 import { useRegulation } from '../lib/RegulationContext';
 import { useTeams } from '../hooks/useTeams';
+import { useSets, isSameSetup } from '../hooks/useSets';
 import { PokemonImage } from '../components/PokemonCard';
 import { AutocompleteInput } from '../components/AutocompleteInput';
 
@@ -1154,15 +1155,43 @@ function buildShowdownPaste(side) {
   return lines.join('\n');
 }
 
+// Build a My Sets entry from a side state
+function toSavedSet(side) {
+  return {
+    name: side.name,
+    types: side.types ?? [],
+    spriteUrl: side.spriteUrl ?? '',
+    stats: side.stats ?? {},
+    usagePct: null,
+    nature: side.nature ?? 'Hardy',
+    evs: { ...side.evs },
+    moves: [...(side.moves ?? ['', '', '', ''])],
+    item: side.item ?? '',
+    ability: side.ability ?? '',
+    teraType: side.isTera ? (side.teraType || '') : '',
+  };
+}
+
+// Showdown-style EV shorthand with nature +/- markers, e.g. "32/0-/32+/0/2/0"
+// — used as the default label when saving a new set from the Calculator.
+function evSpreadLabel(evs, nature) {
+  const ns = NATURE_STATS[nature] || {};
+  return ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+    .map(k => `${evs?.[k] ?? 0}${ns.plus === k ? '+' : ns.minus === k ? '-' : ''}`)
+    .join('/');
+}
+
 function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, field, selectedSet, onSetChange, lastAppliedRef }) {
   const setSelectedSet = onSetChange;
-  const [exportFeedback, setExportFeedback] = useState(''); // '' | 'saved' | 'added' | 'full' | 'copied'
+  const [exportFeedback, setExportFeedback] = useState(''); // '' | 'saved' | 'added' | 'full' | 'copied' | 'setAdded' | 'setExists'
   const [bulkOpen, setBulkOpen]             = useState(false);
   const [dmgOpen,  setDmgOpen]              = useState(false);
+  const [pendingSet, setPendingSet]         = useState(null); // payload awaiting a label before being saved to My Sets
   const lastAppliedName  = lastAppliedRef;       // lives in context — survives navigation
   const pendingSetKey    = useRef(null);         // set key to apply after a name-change import
   const prevNameRef      = useRef(side.name);    // initialised with current name — survives StrictMode & remounts
   const { teams, activeTeam, setSlot, patchSlotInTeam } = useTeams();
+  const { sets, addSet } = useSets();
 
   // Only fetch meta when the typed name exactly matches a known Pokémon —
   // prevents 404 spam while the user is still mid-typing.
@@ -1251,7 +1280,7 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
     onChange(prev => ({ ...prev, ability: legal[0] }));
   }, [meta, side.ability]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Build set options: Most Common, team entries, Blank
+  // Build set options: Most Common, team entries, saved My Sets, Blank
   const setOptions = useMemo(() => {
     if (!side.name) return [];
     const opts = [{ value: 'most-common', label: 'Most Common' }];
@@ -1268,9 +1297,12 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
         });
       }
     });
+    sets
+      .filter(s => s.name?.toLowerCase() === nameLower)
+      .forEach(s => opts.push({ value: `set:${s.id}`, label: `Set · ${s.label || 'Untitled'}` }));
     opts.push({ value: 'blank', label: 'Blank' });
     return opts;
-  }, [side.name, teams]);
+  }, [side.name, teams, sets]);
 
   // Apply a preset when the Set dropdown changes
   const handleSetChange = useCallback(value => {
@@ -1296,8 +1328,26 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
         evs:       p.evs       ?? { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
         moves:     p.moves     ?? ['', '', '', ''],
       }));
+    } else if (value.startsWith('set:')) {
+      const setId = value.slice(4);
+      const s = sets.find(x => x.id === setId);
+      if (!s) return;
+      onChange(() => ({
+        ...defaultSide(),
+        name:      s.name,
+        spriteUrl: s.spriteUrl ?? '',
+        types:     s.types     ?? [],
+        stats:     s.stats     ?? {},
+        item:      s.item      ?? '',
+        ability:   s.ability   ?? '',
+        nature:    s.nature    ?? 'Hardy',
+        evs:       s.evs       ?? { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+        moves:     s.moves     ?? ['', '', '', ''],
+        teraType:  s.teraType  ?? '',
+        isTera:    !!s.teraType,
+      }));
     }
-  }, [meta, side.name, teams, buildMetaSide, onChange]);
+  }, [meta, side.name, teams, sets, buildMetaSide, onChange]);
 
   const set = useCallback((key, val) => onChange(prev => ({ ...prev, [key]: val })), [onChange]);
 
@@ -1390,6 +1440,29 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
     });
   }, [side]);
 
+  // Save to My Sets — never updates an existing entry (unlike My Teams'
+  // upsert-by-team-slot). If an identical setup already exists, it's left
+  // alone and nothing new is inserted. Only a genuinely new set prompts for
+  // a label.
+  const handleAddToSet = useCallback(() => {
+    if (!side.name) return;
+    const payload = toSavedSet(side);
+    if (sets.some(s => isSameSetup(s, payload))) {
+      setExportFeedback('setExists');
+      setTimeout(() => setExportFeedback(''), 2000);
+      return;
+    }
+    setPendingSet(payload);
+  }, [side, sets]);
+
+  const confirmSaveSet = useCallback((label) => {
+    if (!pendingSet) return;
+    addSet({ ...pendingSet, label });
+    setPendingSet(null);
+    setExportFeedback('setAdded');
+    setTimeout(() => setExportFeedback(''), 2000);
+  }, [pendingSet, addSet]);
+
   // Apply a bulk optimizer result: set nature + HP/def EVs, zero all others
   // to avoid overcapping the 66-pt total hard cap.
   const handleApplyBulk = useCallback(result => {
@@ -1448,14 +1521,17 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
           {/* Feedback message */}
           {exportFeedback && (
             <span style={{ fontSize: 11, color:
-              exportFeedback === 'full'   ? '#f87171' :
-              exportFeedback === 'copied' ? '#60a5fa' : '#4ade80',
+              exportFeedback === 'full'      ? '#f87171' :
+              exportFeedback === 'copied'    ? '#60a5fa' :
+              exportFeedback === 'setExists' ? '#facc15' : '#4ade80',
               fontWeight: 600, whiteSpace: 'nowrap',
             }}>
-              {exportFeedback === 'saved'  ? '✓ Saved'       :
-               exportFeedback === 'added'  ? '✓ Added to team' :
-               exportFeedback === 'full'   ? '✗ Team full'   :
-               exportFeedback === 'copied' ? '✓ Copied'      : ''}
+              {exportFeedback === 'saved'      ? '✓ Saved'            :
+               exportFeedback === 'added'      ? '✓ Added to team'    :
+               exportFeedback === 'full'       ? '✗ Team full'        :
+               exportFeedback === 'copied'     ? '✓ Copied'           :
+               exportFeedback === 'setAdded'   ? '✓ Added to My Sets' :
+               exportFeedback === 'setExists'  ? 'Already in My Sets' : ''}
             </span>
           )}
           {side.name && (
@@ -1466,6 +1542,13 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
                 style={{ fontSize: 11, padding: '4px 10px' }}
               >
                 {selectedSet.startsWith('team:') ? 'Save to Team' : 'Add to Team'}
+              </button>
+              <button
+                onClick={handleAddToSet}
+                title="Save this set to My Sets"
+                style={{ fontSize: 11, padding: '4px 10px' }}
+              >
+                Add to Set
               </button>
               <button
                 onClick={handleCopyShowdown}
@@ -1528,7 +1611,10 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
         <div>
           <SectionLabel>ABILITY</SectionLabel>
           <select
-            value={side.ability}
+            value={
+              abilityOptions.find(a => a.toLowerCase() === side.ability?.toLowerCase())
+              ?? side.ability ?? ''
+            }
             onChange={e => set('ability', e.target.value)}
             style={SELECT_STYLE}
             disabled={!side.name}
@@ -1702,6 +1788,47 @@ function SidePanel({ label, side, onChange, allNames, activeRegId, opponent, fie
           onClose={() => setDmgOpen(false)}
         />
       )}
+
+      {/* Save-to-Set label prompt — only shown for a genuinely new set */}
+      {pendingSet && (
+        <SaveToSetModal
+          pokemonName={pendingSet.name}
+          defaultLabel={evSpreadLabel(pendingSet.evs, pendingSet.nature)}
+          onConfirm={confirmSaveSet}
+          onClose={() => setPendingSet(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Save-to-Set modal ─────────────────────────────────────────────────────────
+function SaveToSetModal({ pokemonName, defaultLabel, onConfirm, onClose }) {
+  const [label, setLabel] = useState(defaultLabel ?? '');
+  const OVERLAY = {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+  };
+  return (
+    <div style={OVERLAY} onClick={onClose}>
+      <div
+        style={{ background: 'var(--bg1)', border: '1px solid var(--border)', borderRadius: 16, padding: 28, width: 380, maxWidth: '92vw' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Save {pokemonName} to My Sets</div>
+        <input
+          autoFocus
+          value={label}
+          onChange={e => setLabel(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && onConfirm(label.trim())}
+          placeholder="Set label (optional)"
+          style={{ width: '100%', marginBottom: 16 }}
+        />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="primary" onClick={() => onConfirm(label.trim())} style={{ flex: 1 }}>Save</button>
+          <button onClick={onClose} style={{ flex: 1 }}>Cancel</button>
+        </div>
+      </div>
     </div>
   );
 }

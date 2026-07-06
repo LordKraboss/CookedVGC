@@ -9,7 +9,8 @@
       "Bash(cd /c/Users/InfoWare31/Desktop/pokemon-vgc/frontend/src && ls pages)",
       "Bash(node --test src/tournament/)",
       "Bash(node --test src/tournament/match.test.js)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "WebFetch(domain:play.limitlesstcg.com)"
     ]
   }
 }

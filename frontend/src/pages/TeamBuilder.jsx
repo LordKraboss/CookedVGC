@@ -5,6 +5,7 @@ import { getTeamSuggestions, getPokemonSuggestions, validateTeam } from '../lib/
 import { AutocompleteInput } from '../components/AutocompleteInput';
 import { SortBar, sortPokemon, SORT_OPTIONS } from '../components/SortBar';
 import { useTeams } from '../hooks/useTeams';
+import { useSets } from '../hooks/useSets';
 import { useRegulation } from '../lib/RegulationContext';
 import { PokemonSlotCard } from '../components/PokemonSlotCard';
 import { TypeCoverageModal } from '../components/TypeCoverageModal';
@@ -135,13 +136,27 @@ function EmptySlot({ onAdd }) {
   );
 }
 
+// A saved My Sets entry carries extra bookkeeping fields (id/label/teraType/
+// timestamps) that My Teams' PokemonSet shape doesn't use — strip them.
+function toTeamPokemon(s) {
+  return {
+    name: s.name, types: s.types ?? [], spriteUrl: s.spriteUrl ?? '',
+    stats: s.stats, usagePct: s.usagePct ?? null,
+    nature: s.nature ?? 'Hardy', evs: s.evs, moves: s.moves,
+    item: s.item ?? '', ability: s.ability ?? '',
+  };
+}
+
 // ── Add Pokémon modal ─────────────────────────────────────────────────────────
 function AddModal({ onClose, onAdd, activeRegId, existingNames = [] }) {
-  const [mode, setMode]           = useState('search'); // 'search' | 'paste'
+  const [mode, setMode]           = useState('search'); // 'search' | 'paste' | 'sets'
   const [input, setInput]         = useState('');
   const [searchError, setSearchError] = useState('');
   const [paste, setPaste]         = useState('');
   const [pasteError, setPasteError] = useState('');
+  const [setsQuery, setSetsQuery] = useState('');
+  const [setsError, setSetsError] = useState('');
+  const { sets } = useSets();
 
   const handleSearch = (name) => {
     const n = (name ?? input).trim();
@@ -169,10 +184,87 @@ function AddModal({ onClose, onAdd, activeRegId, existingNames = [] }) {
     onClose();
   };
 
+  const filteredSets = sets.filter(s => {
+    const q = setsQuery.trim().toLowerCase();
+    if (!q) return true;
+    return s.name.toLowerCase().includes(q) || (s.label || '').toLowerCase().includes(q);
+  });
+
+  const handlePickSet = (s) => {
+    if (existingNames.includes(s.name.toLowerCase())) {
+      setSetsError(`${s.name} is already in your team.`);
+      return;
+    }
+    onAdd(toTeamPokemon(s));
+    onClose();
+  };
+
   const OVERLAY = {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
   };
+
+  if (mode === 'sets') {
+    return (
+      <div style={OVERLAY} onClick={onClose}>
+        <div
+          style={{ background: 'var(--bg1)', border: '1px solid var(--border)', borderRadius: 16, padding: 28, width: 480, maxWidth: '92vw' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>🗂️ Add from My Sets</div>
+          <input
+            autoFocus
+            value={setsQuery}
+            onChange={e => { setSetsQuery(e.target.value); setSetsError(''); }}
+            placeholder="Filter by species or label…"
+            style={{ width: '100%', marginBottom: 10 }}
+          />
+          {setsError && <div style={{ fontSize: 12, color: '#f87171', marginBottom: 8 }}>{setsError}</div>}
+          {!sets.length ? (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '20px 0', textAlign: 'center' }}>
+              No saved sets yet — build one on the My Sets page.
+            </div>
+          ) : !filteredSets.length ? (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '20px 0', textAlign: 'center' }}>
+              No sets match "{setsQuery}".
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 320, overflowY: 'auto', marginBottom: 12 }}>
+              {filteredSets.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => handlePickSet(s)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                    padding: '8px 10px', textAlign: 'left', background: 'var(--bg2)',
+                    border: '1px solid var(--border)', borderRadius: 8,
+                  }}
+                >
+                  <PokemonImage name={s.name} size={32} spriteUrl={s.spriteUrl} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {s.name}
+                    </div>
+                    {s.label && (
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {s.label}
+                      </div>
+                    )}
+                  </div>
+                  {s.item && (
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>{s.item}</div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+          <button onClick={() => { setMode('search'); setSetsError(''); }} style={{ width: '100%' }}>
+            ← Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === 'paste') {
     return (
@@ -225,10 +317,13 @@ function AddModal({ onClose, onAdd, activeRegId, existingNames = [] }) {
         {searchError && (
           <div style={{ fontSize: 12, color: '#f87171', marginBottom: 10 }}>{searchError}</div>
         )}
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           <button className="primary" onClick={() => handleSearch()} style={{ flex: 1 }}>Add</button>
-          <button onClick={() => setMode('paste')} style={{ flex: 2 }}>📋 Paste from Showdown</button>
           <button onClick={onClose} style={{ flex: 1 }}>Cancel</button>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => setMode('paste')} style={{ flex: 1 }}>📋 Paste from Showdown</button>
+          <button onClick={() => setMode('sets')} style={{ flex: 1 }}>🗂️ My Sets</button>
         </div>
       </div>
     </div>
@@ -396,16 +491,94 @@ function SuggestionsPanel({ team, onAdd }) {
   );
 }
 
+// The reverse of MySets.jsx's toTeamPokemon — strips a team slot down to the
+// fields a saved My Sets entry cares about.
+function fromTeamPokemon(p) {
+  return {
+    name: p.name, types: p.types ?? [], spriteUrl: p.spriteUrl ?? '',
+    stats: p.stats, usagePct: p.usagePct ?? null,
+    nature: p.nature ?? 'Hardy', evs: p.evs, moves: p.moves,
+    item: p.item ?? '', ability: p.ability ?? '',
+  };
+}
+
+// ── Save-to-Set modal ─────────────────────────────────────────────────────────
+function SaveToSetModal({ pokemonName, defaultLabel, onConfirm, onClose }) {
+  const [label, setLabel] = useState(defaultLabel);
+  const OVERLAY = {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+  };
+  return (
+    <div style={OVERLAY} onClick={onClose}>
+      <div
+        style={{ background: 'var(--bg1)', border: '1px solid var(--border)', borderRadius: 16, padding: 28, width: 380, maxWidth: '92vw' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Save {pokemonName} to My Sets</div>
+        <input
+          autoFocus
+          value={label}
+          onChange={e => setLabel(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && onConfirm(label.trim())}
+          placeholder="Set label"
+          style={{ width: '100%', marginBottom: 16 }}
+        />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="primary" onClick={() => onConfirm(label.trim())} style={{ flex: 1 }}>Save</button>
+          <button onClick={onClose} style={{ flex: 1 }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Memoised slot wrapper ─────────────────────────────────────────────────────
 // Gives each slot its own stable onUpdate/onRemove/onAdd so React.memo on
 // PokemonSlotCard and EmptySlot can skip re-renders when sibling slots change.
-const TeamSlotWrapper = memo(function TeamSlotWrapper({ index, pokemon, setSlot, clearSlot, setAddingSlot }) {
+const TeamSlotWrapper = memo(function TeamSlotWrapper({ index, pokemon, setSlot, clearSlot, setAddingSlot, teamId, teamName, upsertSet }) {
   const handleUpdate = useCallback((updatedOrFn) => setSlot(index, updatedOrFn), [index, setSlot]);
   const handleRemove = useCallback(() => clearSlot(index), [index, clearSlot]);
   const handleAdd    = useCallback(() => setAddingSlot(index), [index, setAddingSlot]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   if (!pokemon) return <EmptySlot onAdd={handleAdd} />;
-  return <PokemonSlotCard pokemon={pokemon} onUpdate={handleUpdate} onRemove={handleRemove} />;
+
+  const confirmSave = (label) => {
+    upsertSet(teamId, index, fromTeamPokemon(pokemon), label);
+    setShowSaveModal(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setShowSaveModal(true)}
+        title="Save to Set"
+        style={{
+          position: 'absolute', top: 12, left: 12, zIndex: 1,
+          width: 24, height: 24, padding: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'var(--bg3)', border: '1px solid var(--border)',
+          borderRadius: 6, fontSize: 12, cursor: 'pointer',
+          color: saved ? '#4ade80' : 'var(--text-muted)',
+        }}
+      >
+        {saved ? '✓' : '🗂️'}
+      </button>
+      <PokemonSlotCard pokemon={pokemon} onUpdate={handleUpdate} onRemove={handleRemove} />
+      {showSaveModal && (
+        <SaveToSetModal
+          pokemonName={pokemon.name}
+          defaultLabel={teamName}
+          onConfirm={confirmSave}
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
+    </div>
+  );
 });
 
 // ── Legality badge ──────────────────────────────────────────────────────────
@@ -470,6 +643,7 @@ export default function TeamBuilder() {
     selectTeam, newTeam, renameTeam, deleteTeam,
     setSlot, clearSlot, exportShowdown,
   } = useTeams();
+  const { upsertSet } = useSets();
 
   const [addingSlot, setAddingSlot] = useState(null);
   const [showExport, setShowExport] = useState(false);
@@ -477,9 +651,18 @@ export default function TeamBuilder() {
   const [showCoverage, setShowCoverage] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [syncedToSets, setSyncedToSets] = useState(false);
   const [, startTransition] = useTransition();
 
   const filledCount = activeTeam?.slots.filter(Boolean).length ?? 0;
+
+  const handleSyncToSets = () => {
+    activeTeam.slots.forEach((p, i) => {
+      if (p) upsertSet(activeTeam.id, i, fromTeamPokemon(p), activeTeam.name);
+    });
+    setSyncedToSets(true);
+    setTimeout(() => setSyncedToSets(false), 1500);
+  };
 
   const handleAddSlot = (slotIndex, pokemon) => {
     setSlot(slotIndex, pokemon);
@@ -512,6 +695,9 @@ export default function TeamBuilder() {
         </button>
         <button onClick={() => setShowExport(true)} disabled={filledCount === 0}>
           Export Showdown
+        </button>
+        <button onClick={handleSyncToSets} disabled={filledCount === 0} style={{ color: syncedToSets ? '#4ade80' : undefined }}>
+          {syncedToSets ? '✓ Synced to My Sets' : '🗂️ Add to/Refresh Set'}
         </button>
         <button className="primary" onClick={() => setShowNewTeam(true)}>+ New team</button>
       </div>
@@ -591,6 +777,9 @@ export default function TeamBuilder() {
                 setSlot={setSlot}
                 clearSlot={clearSlot}
                 setAddingSlot={setAddingSlot}
+                teamId={activeTeam.id}
+                teamName={activeTeam.name}
+                upsertSet={upsertSet}
               />
             ))}
           </div>
