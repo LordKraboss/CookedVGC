@@ -14,6 +14,7 @@ import SpeedTier          from './pages/SpeedTier';
 import AccuracyCheck      from './pages/AccuracyCheck';
 import ItemDex            from './pages/ItemDex';
 import MyNotes            from './pages/MyNotes';
+import MySets             from './pages/MySets';
 import Draft              from './pages/Draft';
 import Tournament         from './pages/Tournament';
 import TournamentResults  from './pages/TournamentResults';
@@ -26,13 +27,14 @@ const qc = new QueryClient({
 });
 
 const NAV = [
-  { path: '/',                    label: 'Meta',              icon: '◉' },
-  { path: '/moves',               label: 'Move lookup',       icon: '⌖' },
   { path: '/teams',               label: 'My teams',          icon: '◧' },
   { path: '/tools/notes',         label: 'My Notes',          icon: '📓' },
+  { path: '/tools/sets',          label: 'My Sets',           icon: '🗂️' },
 ];
 
 const TOOLS_NAV = [
+  { path: '/',                 label: 'Meta',              icon: '◉' },
+  { path: '/moves',            label: 'Move lookup',       icon: '⌖' },
   { path: '/tournament-teams', label: 'Tournament teams', icon: '◈' },
   { path: '/tools/calculator', label: 'Calculator', icon: '⊞' },
   { path: '/tools/speed-tier', label: 'Speed Tier',  icon: '⚡' },
@@ -81,6 +83,29 @@ function ThemeSwitcher() {
   );
 }
 
+function CollapsibleSection({ title, children, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={{ marginTop: 16 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          width: '100%', background: 'transparent', border: 'none',
+          padding: 0, marginBottom: 6, cursor: 'pointer',
+        }}
+      >
+        <span style={{ ...labelStyle, marginBottom: 0 }}>{title}</span>
+        <span style={{
+          fontSize: 9, color: 'var(--text-muted)',
+          transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s',
+        }}>▶</span>
+      </button>
+      {open && children}
+    </div>
+  );
+}
+
 function NavItem({ path, label, icon, onNavigate }) {
   return (
     <NavLink
@@ -108,42 +133,46 @@ function Sidebar({ mobile = false, onNavigate }) {
       width: 210, flexShrink: 0,
       background: 'var(--bg1)', borderRight: '1px solid var(--border)',
       display: 'flex', flexDirection: 'column',
-      padding: '24px 16px', gap: 4,
+      padding: '24px 16px 16px', gap: 4,
       ...(mobile ? {
         position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
-        overflowY: 'auto', boxShadow: '4px 0 24px rgba(0,0,0,.4)',
+        boxShadow: '4px 0 24px rgba(0,0,0,.4)',
       } : {}),
     }}>
       <img
         src={logo}
         alt="VGCtool"
-        style={{ height: 'auto', width: 'auto', display: 'block', marginBottom: 4 }}
+        style={{ height: 'auto', width: 'auto', display: 'block', marginBottom: 4, flexShrink: 0 }}
       />
 
-      {/* Nav */}
-      {NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
-
-      {/* Tools section */}
-      <div style={{ ...labelStyle, marginTop: 16, marginBottom: 6 }}>TOOLS</div>
-      {TOOLS_NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
-
-      {/* Game section */}
-      <div style={{ ...labelStyle, marginTop: 16, marginBottom: 6 }}>GAMES</div>
-      {GAME_NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
-
-      {/* Spacer */}
-      <div style={{ flex: 1, minHeight: 16 }} />
-
-      {/* Regulation switcher */}
-      <div style={{ marginBottom: 12 }}>
-        <div style={labelStyle}>REGULATION</div>
-        <RegSwitcher />
+      {/* Pinned nav */}
+      <div style={{
+        flexShrink: 0, background: 'var(--bg2)', borderRadius: 10,
+        padding: 6, marginBottom: 4,
+      }}>
+        {NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
       </div>
 
-      {/* Theme switcher */}
-      <div>
-        <div style={labelStyle}>THEME</div>
-        <ThemeSwitcher />
+      {/* Scrollable sections */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: 2 }}>
+        <CollapsibleSection title="TOOLS">
+          {TOOLS_NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
+        </CollapsibleSection>
+
+        <CollapsibleSection title="GAMES">
+          {GAME_NAV.map(item => <NavItem key={item.path} {...item} onNavigate={onNavigate} />)}
+        </CollapsibleSection>
+
+        <CollapsibleSection title="OPTIONS" defaultOpen={false}>
+          <div style={{ marginBottom: 12 }}>
+            <div style={labelStyle}>REGULATION</div>
+            <RegSwitcher />
+          </div>
+          <div>
+            <div style={labelStyle}>THEME</div>
+            <ThemeSwitcher />
+          </div>
+        </CollapsibleSection>
       </div>
     </aside>
   );
@@ -248,6 +277,7 @@ export default function App() {
                 <Route path="/tools/accuracy"   element={<AccuracyCheck />} />
                 <Route path="/tools/items"      element={<ItemDex />} />
                 <Route path="/tools/notes"      element={<MyNotes />} />
+                <Route path="/tools/sets"       element={<MySets />} />
                 <Route path="/tools/draft"      element={<Draft />} />
                 <Route path="/tools/tournament" element={<Tournament />} />
                 <Route path="/tools/tournament-results" element={<TournamentResults />} />
