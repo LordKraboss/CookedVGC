@@ -3,7 +3,7 @@
 // browse/edit history, see winrate stats, export/import as JSON or CSV.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTeams } from '../hooks/useTeams';
-import { useNotes, getLastTeamId, setLastTeamId, getLastTags, setLastTags, tally, winrate, byTeam } from '../hooks/useNotes';
+import { useNotes, getLastTeamId, setLastTeamId, getLastTags, setLastTags, getDraft, saveDraft, tally, winrate, byTeam } from '../hooks/useNotes';
 import { useRegulation } from '../lib/RegulationContext';
 import { AutocompleteInput } from '../components/AutocompleteInput';
 import { PokemonImage } from '../components/PokemonCard';
@@ -89,11 +89,14 @@ export default function MyNotes() {
   const { activeRegId } = useRegulation();
   const fileRef = useRef(null);
 
-  const [draft, setDraft] = useState(() => blankDraft(getLastTeamId() || teams[0]?.id, getLastTags()));
+  const [draft, setDraft] = useState(() => getDraft() || blankDraft(getLastTeamId() || teams[0]?.id, getLastTags()));
   const [oppQuery, setOppQuery] = useState('');
   const [filterTags, setFilterTags] = useState([]);
   const [page, setPage] = useState(0);
   const editing = draft.id != null;
+
+  // Persist the in-progress draft so it survives navigating to another page.
+  useEffect(() => { saveDraft(draft); }, [draft]);
 
   const teamById = useMemo(() => Object.fromEntries(teams.map((t) => [t.id, t])), [teams]);
 

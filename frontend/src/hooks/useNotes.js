@@ -110,6 +110,20 @@ export function setLastTags(tags) {
   try { localStorage.setItem(LAST_TAGS_KEY, JSON.stringify(tags)); } catch { /* quota */ }
 }
 
+// In-progress note draft — survives navigating to another page and back.
+const DRAFT_KEY = "vgc_notes_draft";
+export function getDraft() {
+  try {
+    const obj = JSON.parse(localStorage.getItem(DRAFT_KEY));
+    return obj && typeof obj === "object" ? obj : null;
+  } catch {
+    return null;
+  }
+}
+export function saveDraft(draft) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
+}
+
 // ── Reporting helpers (pure) ───────────────────────────────────────────────
 
 export function tally(notes) {
