@@ -31,6 +31,16 @@ const REGULATIONS = [
     dexGen: "champions",              // ← Smogon dex URL segment for legal move lookup
   },
 
+  {
+    id: "regmc",
+    label: "Reg MC — Champions VGC 2026",
+    format: "gen9championsvgc2026regmC",   // ← Smogon chaos filename prefix
+    ratingBracket: 0,                  // 0 = all battles, 1500, 1630, 1760 available
+    active: true,
+    startMonth: "2026-09",            // earliest month to pull; null = latest only
+    dexGen: "champions",              // ← Smogon dex URL segment for legal move lookup
+  },
+
   // ── Archive / future regs (keep for historical lookups) ─────────────────
   // {
   //   id: "regl",
