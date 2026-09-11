@@ -34,7 +34,7 @@ const REGULATIONS = [
   {
     id: "regmc",
     label: "Reg MC — Champions VGC 2026",
-    format: "gen9championsvgc2026regmC",   // ← Smogon chaos filename prefix
+    format: "gen9championsvgc2026regmc",   // ← Smogon chaos filename prefix
     ratingBracket: 0,                  // 0 = all battles, 1500, 1630, 1760 available
     active: true,
     startMonth: "2026-09",            // earliest month to pull; null = latest only
